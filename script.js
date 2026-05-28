@@ -258,110 +258,211 @@ checkoutBtn.addEventListener('click', () => {
     }
 });
 
-placeOrderBtn.addEventListener('click', () => {
+// ============================================
+// MIDTRANS PAYMENT INTEGRATION
+// ============================================
+
+let currentSnapToken = null;
+let currentOrderId = null;
+let paymentPollingInterval = null;
+
+// Fungsi membuat Order ID unik
+const generateOrderId = () => {
+    const now = new Date();
+    const ts = now.getFullYear().toString() +
+        String(now.getMonth()+1).padStart(2,'0') +
+        String(now.getDate()).padStart(2,'0') +
+        String(now.getHours()).padStart(2,'0') +
+        String(now.getMinutes()).padStart(2,'0') +
+        String(now.getSeconds()).padStart(2,'0');
+    return `ARENA-${ts}-${Math.floor(Math.random()*1000)}`;
+};
+
+// Fungsi tampilkan overlay menunggu pembayaran
+const showPaymentWaiting = (orderId, total) => {
+    document.getElementById('waiting-order-id').innerText = orderId;
+    document.getElementById('waiting-total').innerText = formatRupiah(total);
+    document.getElementById('payment-waiting-overlay').style.display = 'flex';
+    checkoutModal.style.display = 'none';
+};
+
+// Fungsi tampilkan overlay sukses
+const showPaymentSuccess = (orderId) => {
+    stopPolling();
+    document.getElementById('payment-waiting-overlay').style.display = 'none';
+    document.getElementById('success-order-id').innerText = `Order ID: ${orderId}`;
+    document.getElementById('payment-success-overlay').style.display = 'flex';
+    cart = [];
+    updateCartBadge();
+};
+
+// Fungsi mulai polling status pembayaran (cek setiap 4 detik)
+const startPolling = (orderId) => {
+    stopPolling(); // Pastikan tidak ada polling ganda
+    paymentPollingInterval = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/check-status?order_id=${orderId}`);
+            const data = await res.json();
+            if (data.isPaid) {
+                showPaymentSuccess(orderId);
+            } else if (data.isFailed) {
+                stopPolling();
+                document.getElementById('payment-waiting-overlay').style.display = 'none';
+                alert('Pembayaran dibatalkan atau gagal. Silakan coba lagi.');
+                checkoutModal.style.display = 'block';
+            }
+        } catch (err) {
+            console.warn('Polling error (akan coba lagi):', err.message);
+        }
+    }, 4000); // Cek setiap 4 detik
+};
+
+// Fungsi hentikan polling
+const stopPolling = () => {
+    if (paymentPollingInterval) {
+        clearInterval(paymentPollingInterval);
+        paymentPollingInterval = null;
+    }
+};
+
+// Tombol Buka Ulang Pembayaran
+document.getElementById('btn-reopen-payment').addEventListener('click', () => {
+    if (currentSnapToken) {
+        window.snap.pay(currentSnapToken, {
+            onSuccess: (result) => showPaymentSuccess(result.order_id || currentOrderId),
+            onPending: () => console.log('Menunggu pembayaran...'),
+            onError: () => alert('Terjadi kesalahan pada pembayaran.'),
+            onClose: () => console.log('Popup ditutup, polling tetap berjalan.')
+        });
+    }
+});
+
+// Tombol Batalkan Pembayaran
+document.getElementById('btn-cancel-payment').addEventListener('click', () => {
+    stopPolling();
+    document.getElementById('payment-waiting-overlay').style.display = 'none';
+    checkoutModal.style.display = 'block';
+    placeOrderBtn.innerText = '🔒 Bayar Sekarang';
+    placeOrderBtn.disabled = false;
+});
+
+// Tombol Kembali ke Beranda (setelah sukses)
+document.getElementById('btn-back-home').addEventListener('click', () => {
+    document.getElementById('payment-success-overlay').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ===== TOMBOL BAYAR SEKARANG =====
+placeOrderBtn.addEventListener('click', async () => {
     // 1. Ambil data dari form
     const firstName = document.getElementById('checkout-firstname').value.trim();
     const lastName = document.getElementById('checkout-lastname').value.trim();
     const address = document.getElementById('checkout-address1').value.trim();
     const city = document.getElementById('checkout-city').value.trim();
     const phone = document.getElementById('checkout-phone').value.trim();
-    const email = document.getElementById('checkout-email') ? document.getElementById('checkout-email').value.trim() : "";
-    const notes = document.getElementById('checkout-notes') ? document.getElementById('checkout-notes').value.trim() : "";
+    const email = document.getElementById('checkout-email').value.trim();
+    const notes = document.getElementById('checkout-notes').value.trim();
 
     const emailInputEl = document.getElementById('checkout-email');
     const phoneInputEl = document.getElementById('checkout-phone');
-    
+
+    // Cek validasi error merah
     if (emailInputEl.classList.contains('error-input') || phoneInputEl.classList.contains('error-input')) {
-        alert('Mohon perbaiki format Email atau Telepon yang masih salah (merah).');
+        alert('Mohon perbaiki format Email atau Telepon yang masih salah (ditandai merah).');
         return;
     }
 
-    // 2. Validasi sederhana
+    // Validasi field wajib
     if (!firstName || !address || !city || !phone || !email) {
-        alert('Mohon lengkapi data yang bertanda bintang (*)!');
+        alert('Mohon lengkapi semua data yang bertanda bintang (*) terlebih dahulu!');
         return;
     }
 
-    // Save Address Logic
+    // Simpan alamat jika dicentang
     const saveAddressCheckbox = document.getElementById('checkout-save-address');
     if (saveAddressCheckbox && saveAddressCheckbox.checked) {
-        const addressData = {
-            firstname: firstName,
-            lastname: lastName,
-            email: email,
-            phone: phone,
+        localStorage.setItem('savedCheckoutAddress', JSON.stringify({
+            firstname: firstName, lastname: lastName, email, phone,
             address1: address,
             address2: document.getElementById('checkout-address2').value.trim(),
-            city: city,
-            province: document.getElementById('checkout-province').value,
+            city, province: document.getElementById('checkout-province').value,
             zip: document.getElementById('checkout-zip').value.trim(),
             company: document.getElementById('checkout-company').value.trim()
-        };
-        localStorage.setItem('savedCheckoutAddress', JSON.stringify(addressData));
+        }));
     } else {
         localStorage.removeItem('savedCheckoutAddress');
     }
 
-    // Ubah teks tombol
-    const originalBtnText = placeOrderBtn.innerText;
-    placeOrderBtn.innerText = 'Memproses...';
-    placeOrderBtn.disabled = true;
-
-    // 3. Siapkan daftar pesanan
-    let orderDetails = '';
+    // 2. Hitung total & siapkan item
     let total = 0;
-    cart.forEach((item, index) => {
-        orderDetails += `${index + 1}. ${item.title} (Rp ${item.price.toLocaleString('id-ID')})\n`;
+    const items = cart.map(item => {
         total += item.price;
+        return { id: String(item.id), price: item.price, quantity: 1, name: item.title };
     });
 
-    const selectedPayment = document.querySelector('input[name="payment"]:checked').nextElementSibling.innerText;
+    // 3. Buat Order ID unik
+    const orderId = generateOrderId();
+    currentOrderId = orderId;
 
-    // 5. Menyiapkan data untuk dikirim ke Email
-    const emailData = {
-        _subject: `Pesanan Baru dari ${firstName} ${lastName}`,
-        _captcha: "false", // Menonaktifkan captcha bawaan
-        Nama: `${firstName} ${lastName}`,
-        Email: email,
-        Telepon: phone,
-        Alamat: `${address}, ${city}`,
-        Catatan: notes,
-        Pesanan: orderDetails,
-        Total: `Rp ${total.toLocaleString('id-ID')}`,
-        Metode_Pembayaran: selectedPayment
-    };
+    // 4. Ubah tombol jadi loading
+    placeOrderBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+    placeOrderBtn.disabled = true;
 
-    // 6. ALAMAT EMAIL ANDA
-    const targetEmail = "nabilanam090807@gmail.com"; 
+    try {
+        // 5. Kirim request ke Vercel Serverless Function
+        const response = await fetch('/api/create-transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                order_id: orderId,
+                gross_amount: total,
+                customer: { firstName, lastName, email, phone, address, city },
+                items: items
+            })
+        });
 
-    // 7. Kirim pesanan menggunakan Form (Menghindari error karena file dibuka langsung tanpa web server)
-    const form = document.createElement('form');
-    form.action = `https://formsubmit.co/${targetEmail}`;
-    form.method = "POST";
-    form.target = "_blank"; // Buka halaman konfirmasi FormSubmit di tab baru
+        const data = await response.json();
 
-    // Masukkan data ke dalam form
-    for (const key in emailData) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = emailData[key];
-        form.appendChild(input);
+        if (!data.snap_token) {
+            throw new Error(data.error || 'Gagal mendapatkan token pembayaran.');
+        }
+
+        currentSnapToken = data.snap_token;
+
+        // 6. Tampilkan popup pembayaran Midtrans
+        window.snap.pay(currentSnapToken, {
+            onSuccess: (result) => {
+                // Pembayaran berhasil langsung dari callback Snap
+                showPaymentSuccess(result.order_id || orderId);
+            },
+            onPending: () => {
+                // Pembayaran pending (transfer bank, dll) — mulai polling
+                showPaymentWaiting(orderId, total);
+                startPolling(orderId);
+            },
+            onError: (result) => {
+                console.error('Payment error:', result);
+                alert('Terjadi kesalahan saat pembayaran. Silakan coba lagi.');
+                placeOrderBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Bayar Sekarang';
+                placeOrderBtn.disabled = false;
+            },
+            onClose: () => {
+                // User tutup popup, tapi mungkin sudah bayar — tetap polling
+                if (currentOrderId) {
+                    showPaymentWaiting(orderId, total);
+                    startPolling(orderId);
+                }
+                placeOrderBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Bayar Sekarang';
+                placeOrderBtn.disabled = false;
+            }
+        });
+
+    } catch (error) {
+        console.error('Checkout error:', error);
+        alert(`Error: ${error.message}\n\nPastikan Server Key dan Client Key Midtrans sudah diisi dengan benar.`);
+        placeOrderBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Bayar Sekarang';
+        placeOrderBtn.disabled = false;
     }
-
-    document.body.appendChild(form);
-    form.submit(); // Submit formulir
-    document.body.removeChild(form);
-
-    // Kembalikan teks tombol
-    placeOrderBtn.innerText = originalBtnText;
-    placeOrderBtn.disabled = false;
-
-    // 8. Tampilkan notifikasi sukses di web
-    cart = [];
-    updateCartBadge();
-    checkoutModal.style.display = 'none';
-    successModal.style.display = 'block';
 });
 
 // Payment Method Toggle (New Logic)

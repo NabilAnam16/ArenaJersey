@@ -7,6 +7,9 @@
     <title>Arena Jersey</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Midtrans Snap.js (Sandbox/Uji Coba) -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="ISI_CLIENT_KEY_MIDTRANS_KAMU_DISINI"></script>
     <!-- Menggunakan font modern sesuai gambar (Space Grotesk & Inter) -->
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap"
@@ -306,6 +309,59 @@
                 Terima kasih telah berbelanja di Arena Jersey. Pesanan Anda telah kami terima dan sedang diproses.
             </p>
             <button class="checkout-btn" id="close-success-btn" style="width: 100%;">Kembali ke Beranda</button>
+        </div>
+    </div>
+
+    <!-- Overlay Menunggu Pembayaran -->
+    <div id="payment-waiting-overlay" style="display:none;">
+        <div class="payment-waiting-box">
+            <div class="payment-waiting-spinner">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size:50px; color:var(--green-accent);"></i>
+            </div>
+            <h2 style="margin: 20px 0 10px; font-size:24px;">Menunggu Pembayaran...</h2>
+            <p style="color:#666; margin-bottom:5px;">Selesaikan pembayaran Anda di halaman Midtrans yang telah terbuka.</p>
+            <p style="color:#999; font-size:13px; margin-bottom:25px;">Halaman ini akan otomatis berubah setelah pembayaran terdeteksi.</p>
+            
+            <div class="payment-order-info">
+                <div class="payment-info-row">
+                    <span>Order ID</span>
+                    <span id="waiting-order-id" style="font-weight:700;">-</span>
+                </div>
+                <div class="payment-info-row">
+                    <span>Total</span>
+                    <span id="waiting-total" style="font-weight:700; color:var(--green-accent);">-</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button id="btn-reopen-payment" class="place-order-btn-new" style="flex:1; padding:12px; font-size:14px;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Ulang Pembayaran
+                </button>
+                <button id="btn-cancel-payment" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:8px; background:white; cursor:pointer; font-size:14px; color:#666;">
+                    <i class="fa-solid fa-xmark"></i> Batalkan
+                </button>
+            </div>
+
+            <p style="font-size:12px; color:#aaa; margin-top:15px;">
+                <i class="fa-solid fa-shield-halved"></i> Pembayaran diproses dengan aman oleh Midtrans
+            </p>
+        </div>
+    </div>
+
+    <!-- Overlay Pembayaran Berhasil -->
+    <div id="payment-success-overlay" style="display:none;">
+        <div class="payment-waiting-box" style="text-align:center;">
+            <div style="animation: popIn 0.5s ease;">
+                <i class="fa-solid fa-circle-check" style="font-size:80px; color:var(--green-accent);"></i>
+            </div>
+            <h2 style="margin:20px 0 10px; font-size:28px; color:#333;">Pembayaran Berhasil!</h2>
+            <p id="success-order-id" style="color:#999; font-size:14px; margin-bottom:5px;">Order ID: -</p>
+            <p style="color:#666; line-height:1.6; margin-bottom:25px;">
+                Terima kasih! Pesanan jersey kamu sudah kami terima dan sedang diproses untuk pengiriman. Cek emailmu untuk detail pesanan.
+            </p>
+            <button id="btn-back-home" class="place-order-btn-new" style="width:100%;">
+                <i class="fa-solid fa-house"></i> Kembali ke Beranda
+            </button>
         </div>
     </div>
 
