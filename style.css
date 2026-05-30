@@ -866,3 +866,5 @@ body {
 }
 
 .checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 40px; } @media (max-width: 992px) { .checkout-grid { grid-template-columns: 1fr; } }
+
+.product-image-wrapper { position: relative; width: 100%; aspect-ratio: 4/5; } .product-image-wrapper img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; transition: opacity 0.3s ease; } .product-image-wrapper .hover-img { opacity: 0; } .product-card:hover .product-image-wrapper .hover-img { opacity: 1; } .product-card:hover .product-image-wrapper .main-img { opacity: 0; }

@@ -3,7 +3,8 @@ const products = [
         id: 1,
         title: "Jersey Arsenal 2000-2001 Away",
         price: 1600000,
-        image: "arsenal_dreamcast.jpg"
+        image: "arsenal_dreamcast_front.png",
+        hoverImage: "arsenal_dreamcast_back.png"
     },
     {
         id: 2,
