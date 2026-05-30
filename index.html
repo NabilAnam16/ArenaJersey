@@ -7,7 +7,6 @@
     <title>Arena Jersey</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <!-- Menggunakan font modern sesuai gambar (Space Grotesk & Inter) -->
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap"
@@ -91,206 +90,121 @@
 
     <!-- Checkout Page Modal -->
     <div id="checkout-page-modal" class="modal checkout-modal-wrapper">
-        <div class="checkout-container-new">
+        <div class="checkout-container">
             <span class="close-checkout-btn">&times;</span>
-            
-            <div class="checkout-header-progress">
-                <div class="progress-step"><span class="step-num">1</span> Keranjang</div>
-                <div class="progress-line"></div>
-                <div class="progress-step active"><span class="step-num">2</span> Informasi & Pengiriman</div>
-                <div class="progress-line"></div>
-                <div class="progress-step"><span class="step-num">3</span> Pembayaran</div>
-            </div>
-
-            <div class="checkout-grid-new">
-                <!-- Kiri: Formulir -->
-                <div class="checkout-left-col">
-                    <!-- Box A: Kontak -->
-                    <div class="checkout-box">
-                        <h3 class="box-title"><i class="fa-regular fa-envelope"></i> A. Informasi Kontak</h3>
-                        <div class="form-row">
-                            <div class="floating-label-group">
-                                <input type="text" id="checkout-firstname" placeholder=" ">
-                                <label>First Name <span>*</span></label>
-                            </div>
-                            <div class="floating-label-group">
-                                <input type="text" id="checkout-lastname" placeholder=" ">
-                                <label>Last Name <span>*</span></label>
-                            </div>
+            <div class="checkout-grid">
+                <!-- Billing Details -->
+                <div class="billing-details">
+                    <h3>Billing Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span>*</span></label>
+                            <input type="text" id="checkout-firstname" placeholder="First Name">
                         </div>
-                        <div class="form-row">
-                            <div class="floating-label-group">
-                                <input type="email" id="checkout-email" placeholder=" ">
-                                <label>Email Address <span>*</span></label>
-                                <span class="error-msg" id="error-email">Format email tidak valid</span>
-                            </div>
-                            <div class="floating-label-group">
-                                <input type="tel" id="checkout-phone" placeholder=" ">
-                                <label>Phone <span>*</span></label>
-                                <span class="error-msg" id="error-phone">Hanya angka (min 10 digit)</span>
-                            </div>
+                        <div class="form-group">
+                            <label>Last Name <span>*</span></label>
+                            <input type="text" id="checkout-lastname" placeholder="Last Name">
                         </div>
                     </div>
-
-                    <!-- Box B: Alamat -->
-                    <div class="checkout-box">
-                        <h3 class="box-title"><i class="fa-solid fa-location-dot"></i> B. Alamat Pengiriman</h3>
-                        
-                        <div class="form-row">
-                            <div class="floating-label-group">
-                                <input type="text" id="checkout-zip" placeholder=" ">
-                                <label>Postcode / ZIP (Auto-fill) <span>*</span></label>
-                                <span style="font-size: 11px; color: #888; margin-top: 5px; display: block;">Ketik 12345 atau 54321 untuk tes auto-fill</span>
-                            </div>
-                            <div class="floating-label-group">
-                                <select id="checkout-country">
-                                    <option>Indonesia</option>
-                                </select>
-                                <label class="static-label">Country / Region <span>*</span></label>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="floating-label-group">
-                                <select id="checkout-province">
-                                    <option value="">Pilih Provinsi</option>
-                                    <option>Jawa Tengah</option>
-                                    <option>Jawa Barat</option>
-                                    <option>Jawa Timur</option>
-                                    <option>DKI Jakarta</option>
-                                    <option>DI Yogyakarta</option>
-                                    <option>Banten</option>
-                                    <option>Bali</option>
-                                </select>
-                                <label class="static-label">Province <span>*</span></label>
-                            </div>
-                            <div class="floating-label-group">
-                                <input type="text" id="checkout-city" placeholder=" ">
-                                <label>Town / City <span>*</span></label>
-                            </div>
-                        </div>
-
-                        <div class="floating-label-group">
-                            <input type="text" id="checkout-address1" placeholder=" " style="margin-bottom: 10px;">
-                            <label>Street address <span>*</span></label>
-                        </div>
-                        <div class="floating-label-group">
-                            <input type="text" id="checkout-address2" placeholder=" ">
-                            <label>Apartment, suite, unit, dll (opsional)</label>
-                        </div>
-
-                        <div class="floating-label-group">
-                            <input type="text" id="checkout-company" placeholder=" ">
-                            <label>Company Name (optional)</label>
-                        </div>
-                        <div class="floating-label-group">
-                            <textarea id="checkout-notes" placeholder=" " rows="3"></textarea>
-                            <label>Order notes (optional)</label>
-                        </div>
-
-                        <div class="save-address-wrapper" style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="checkout-save-address" style="width: 18px; height: 18px; cursor: pointer;">
-                            <label for="checkout-save-address" style="font-size: 14px; cursor: pointer; color: #555;">Simpan alamat ini untuk pembelian berikutnya</label>
-                        </div>
+                    <div class="form-group">
+                        <label>Company Name (optional)</label>
+                        <input type="text" id="checkout-company" placeholder="Company Name">
                     </div>
-
-                    <!-- Box C: Pembayaran -->
-                    <div class="checkout-box">
-                        <h3 class="box-title"><i class="fa-regular fa-credit-card"></i> C. Metode Pembayaran</h3>
-                        <div class="payment-options-new">
-                            <div class="payment-method-new active">
-                                <div class="payment-method-header">
-                                    <input type="radio" name="payment" id="pay-qris" checked>
-                                    <label for="pay-qris" style="flex:1; margin-left: 10px; cursor:pointer; font-weight:600;">QRIS (Gopay, OVO, Dana, dll)</label>
-                                    <i class="fa-solid fa-qrcode" style="color: #666; font-size:20px;"></i>
-                                </div>
-                                <div class="payment-desc-new">
-                                    Silakan scan QR Code di bawah ini untuk melakukan pembayaran:<br>
-                                    <img src="qris.jpg" alt="Scan QRIS" style="max-width: 200px; margin-top: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                                </div>
-                            </div>
-                            <div class="payment-method-new">
-                                <div class="payment-method-header">
-                                    <input type="radio" name="payment" id="pay-mandiri">
-                                    <label for="pay-mandiri" style="flex:1; margin-left: 10px; cursor:pointer; font-weight:600;">Transfer Bank (Mandiri)</label>
-                                    <div style="font-weight:bold; color:#0f4d92; font-style:italic;">mandiri</div>
-                                </div>
-                                <div class="payment-desc-new">
-                                    Lakukan transfer ke rekening Mandiri berikut:<br>
-                                    <strong style="font-size:16px; display:block; margin: 10px 0;">1090022196083</strong>
-                                    (Simpan bukti transfer Anda untuk proses konfirmasi pesanan)
-                                </div>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Country / Region <span>*</span></label>
+                        <select id="checkout-country">
+                            <option>Indonesia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Street address <span>*</span></label>
+                        <input type="text" id="checkout-address1" placeholder="House number and street name" style="margin-bottom: 15px;">
+                        <input type="text" id="checkout-address2" placeholder="Apartment, suite, unit, etc. (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label>Town / City <span>*</span></label>
+                        <input type="text" id="checkout-city">
+                    </div>
+                    <div class="form-group">
+                        <label>Province <span>*</span></label>
+                        <select id="checkout-province">
+                            <option>Jawa Tengah</option>
+                            <option>Jawa Barat</option>
+                            <option>Jawa Timur</option>
+                            <option>DKI Jakarta</option>
+                            <option>DI Yogyakarta</option>
+                            <option>Banten</option>
+                            <option>Bali</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Postcode / ZIP <span>*</span></label>
+                        <input type="text" id="checkout-zip">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone <span>*</span></label>
+                        <input type="tel" id="checkout-phone" placeholder="Phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address <span>*</span></label>
+                        <input type="email" id="checkout-email" placeholder="Email Address">
+                    </div>
+                    <div class="form-group" style="margin-top: 30px;">
+                        <label>Order notes (optional)</label>
+                        <textarea id="checkout-notes" placeholder="Notes about your order, e.g. special notes for delivery." rows="5"></textarea>
                     </div>
                 </div>
 
-                <!-- Kanan: Ringkasan -->
-                <div class="checkout-right-col">
-                    <div class="checkout-box sticky-summary">
-                        <h3 class="box-title">Ringkasan Pesanan</h3>
-                        <div id="checkout-order-items-new" class="summary-items-list">
-                            <!-- Items injected by JS -->
-                        </div>
-                        
-                        <div class="summary-totals">
-                            <div class="summary-row">
+                <!-- Your Order -->
+                <div class="order-summary-section">
+                    <div class="order-box">
+                        <h3>Your Order</h3>
+                        <div class="order-table">
+                            <div class="order-table-header">
+                                <span>Product</span>
                                 <span>Subtotal</span>
-                                <span id="checkout-subtotal-new">Rp0</span>
                             </div>
-                            <div class="summary-row total-row-new">
-                                <span>Total Pembayaran</span>
-                                <span id="checkout-total-new" style="color: var(--green-accent); font-size: 22px;">Rp0</span>
+                            <div id="checkout-order-items">
+                                <!-- Items injected by JS -->
+                            </div>
+                            <div class="order-table-row subtotal-row">
+                                <span>Subtotal</span>
+                                <span id="checkout-subtotal">Rp0</span>
+                            </div>
+                            <div class="order-table-row total-row">
+                                <span>Total</span>
+                                <span id="checkout-total">Rp0</span>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="coupon-box">
+                        Have a coupon? <a href="#">Click here to enter your coupon code</a>
+                    </div>
 
-                        <p class="privacy-text-new">
-                            Dengan melanjutkan pembayaran, Anda menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a>.
+                    <div class="payment-box">
+                        <div class="payment-method active">
+                            <input type="radio" name="payment" id="pay-qris" checked>
+                            <label for="pay-qris">QRIS (Gopay, OVO, Dana, dll)</label>
+                            <div class="payment-desc">
+                                Silakan scan QR Code di bawah ini untuk melakukan pembayaran:<br>
+                                <img src="qris.jpg" alt="Scan QRIS" style="max-width: 250px; width: 100%; height: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            </div>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" name="payment" id="pay-mandiri">
+                            <label for="pay-mandiri">Transfer Bank (Mandiri)</label>
+                            <div class="payment-desc">
+                                Lakukan transfer ke rekening Mandiri berikut:<br>
+                                <strong>No. Rekening: 1090022196083</strong><br>
+                                (Simpan bukti transfer Anda untuk proses konfirmasi pesanan)
+                            </div>
+                        </div>
+                        <p class="privacy-text">
+                            Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <a href="#">privacy policy</a>.
                         </p>
-                        <button class="place-order-btn-new" id="place-order-btn-new"><i class="fa-solid fa-lock"></i> Bayar Sekarang</button>
-                        
-                        <div class="trust-badges-new">
-                            <div class="trust-badge">
-                                <i class="fa-solid fa-shield-halved" style="color: var(--green-accent); font-size: 20px;"></i>
-                                <div>
-                                    <strong>Garansi Produk</strong>
-                                    <span>Produk original 100%</span>
-                                </div>
-                            </div>
-                            <div class="trust-badge">
-                                <i class="fa-solid fa-truck" style="color: var(--green-accent); font-size: 20px;"></i>
-                                <div>
-                                    <strong>Pengiriman Aman</strong>
-                                    <span>Pesanan sampai dengan selamat</span>
-                                </div>
-                            </div>
-                        </div>
+                        <button class="place-order-btn" id="place-order-btn">Place Order</button>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Detail Modal -->
-    <div id="product-detail-modal" class="modal" style="z-index: 1050;">
-        <div class="modal-content" style="max-width: 800px; padding: 30px;">
-            <span class="close-detail-btn close-btn">&times;</span>
-            <div class="product-detail-layout" style="display: flex; gap: 30px; margin-top: 10px; flex-wrap: wrap;">
-                <div class="product-detail-images" style="flex: 1; min-width: 300px;">
-                    <img id="detail-main-img" src="" alt="Main Image" style="width: 100%; border-radius: 12px; object-fit: cover; aspect-ratio: 4/5;">
-                    <div id="detail-thumbnails" style="display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 5px;">
-                        <!-- Thumbnails injected by JS -->
-                    </div>
-                </div>
-                <div class="product-detail-info" style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
-                    <h2 id="detail-title" style="font-size: 28px; margin-bottom: 15px; color: #333;">Product Title</h2>
-                    <h3 id="detail-price" style="font-size: 24px; color: var(--green-accent); margin-bottom: 25px;">Rp0</h3>
-                    <div class="detail-description" style="color: #666; line-height: 1.6; margin-bottom: 30px; flex-grow: 1;">
-                        <p id="detail-desc-text">Deskripsi produk akan muncul di sini.</p>
-                    </div>
-                    <button id="detail-add-to-cart" class="checkout-btn" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-cart-plus"></i> Tambah ke Keranjang
-                    </button>
                 </div>
             </div>
         </div>
@@ -309,8 +223,6 @@
             <button class="checkout-btn" id="close-success-btn" style="width: 100%;">Kembali ke Beranda</button>
         </div>
     </div>
-
-
 
     <script src="script.js"></script>
 </body>

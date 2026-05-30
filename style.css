@@ -864,3 +864,5 @@ body {
     66%  { content: '...'; }
     100% { content: ''; }
 }
+
+.checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 40px; } @media (max-width: 992px) { .checkout-grid { grid-template-columns: 1fr; } }
