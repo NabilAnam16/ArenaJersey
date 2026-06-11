@@ -86,7 +86,9 @@ module.exports = async (req, res) => {
             });
         } else {
             console.error('Midtrans error:', result);
-            return res.status(400).json({ error: 'Gagal membuat transaksi', detail: result });
+            // Ambil pesan error spesifik dari Midtrans jika ada
+            const errorMsg = result.error_messages ? result.error_messages.join(', ') : 'Gagal membuat transaksi';
+            return res.status(400).json({ error: errorMsg, detail: result });
         }
 
     } catch (error) {
