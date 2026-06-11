@@ -504,7 +504,7 @@ const renderCheckoutItems = () => {
     });
 
     if (checkoutSubtotalEl) checkoutSubtotalEl.innerText = formatRupiah(total);
-    if (checkoutTotalEl) checkoutTotalEl.innerText = formatRupiah(total);
+    if (checkoutTotalEl) checkoutTotalEl.innerText = formatRupiah(total + ongkirAmount);
 };
 
 // ---- Event Listeners ----
@@ -781,3 +781,54 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
     startSlideshow();
 });
+// ---- Cek Ongkir ----
+let ongkirAmount = 0;
+
+const PROVINSI_JAWA = [
+    'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah',
+    'Jawa Timur', 'DI Yogyakarta', 'Banten'
+];
+
+const cekOngkir = async () => {
+    const provinsi = document.getElementById('checkout-province').value.trim();
+
+    if (!provinsi) return;
+
+    const ongkirInfo = document.getElementById('ongkir-info');
+    if (ongkirInfo) ongkirInfo.innerText = 'Menghitung ongkir...';
+
+    try {
+        const response = await fetch('/api/cek-ongkir', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provinsi,
+                kota_id: '',
+                jumlah_item: cart.length
+            })
+        });
+
+        const data = await response.json();
+        ongkirAmount = data.ongkir;
+
+        if (ongkirInfo) {
+            ongkirInfo.innerText = data.gratis
+                ? `✅ Gratis Ongkir! (Estimasi ${data.estimasi})`
+                : `Ongkir J&T: ${formatRupiah(data.ongkir)} (Estimasi ${data.estimasi})`;
+        }
+
+        updateCheckoutTotal();
+    } catch (err) {
+        if (ongkirInfo) ongkirInfo.innerText = 'Gagal menghitung ongkir.';
+    }
+};
+
+const updateCheckoutTotal = () => {
+    let subtotal = 0;
+    cart.forEach(item => { subtotal += item.price; });
+
+    const checkoutTotalEl = document.getElementById('checkout-total');
+    if (checkoutTotalEl) {
+        checkoutTotalEl.innerText = formatRupiah(subtotal + ongkirAmount);
+    }
+};
