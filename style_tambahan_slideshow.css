@@ -1,0 +1,99 @@
+/* ===================================================
+   HERO SLIDESHOW — tambahkan di akhir style.css
+   =================================================== */
+
+/* Ganti players-container menjadi slideshow */
+/* ===================================================
+   HERO SLIDESHOW — style_tambahan_slideshow.css
+   =================================================== */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+/* Paksa hero jadi full layar */
+.hero-section {
+    min-height: 100vh;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Slideshow container */
+.hero-slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* Setiap slide */
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+/* Overlay gelap supaya teks terbaca */
+.hero-slide::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(7, 14, 20, 0.55) 0%,
+            rgba(7, 14, 20, 0.35) 40%,
+            rgba(7, 14, 20, 0.70) 100%);
+}
+
+/* Dot indicators */
+.slide-dots {
+    position: absolute;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+}
+
+.slide-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.slide-dot.active {
+    background: var(--yellow-accent);
+    transform: scale(1.3);
+}
+
+/* hero-content harus di atas slideshow */
+.hero-content {
+    z-index: 10;
+    position: relative;
+}
+
+/* Sembunyikan players-container lama */
+.players-container {
+    display: none !important;
+}
