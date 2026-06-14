@@ -104,6 +104,12 @@ const translations = {
         checkFailed: "Gagal mengecek status pembayaran. Silakan coba lagi.",
         expiredMsg: "Transaksi kedaluwarsa atau dibatalkan.",
         cancelConfirm: "Apakah Anda yakin ingin menutup halaman pembayaran? Polling status pembayaran otomatis akan dihentikan.",
+        descriptionTitle: "Deskripsi",
+        namesetLabel: "Name Set",
+        sizeLabel: "Ukuran",
+        conditionLabel: "Kondisi",
+        addToCartModal: "Tambah ke Keranjang",
+        paypalText: "Bayar dengan",
     },
     en: {
         // Navbar
@@ -179,6 +185,12 @@ const translations = {
         checkFailed: "Failed to check payment status. Please try again.",
         expiredMsg: "Transaction expired or cancelled.",
         cancelConfirm: "Are you sure you want to close the payment page? Automatic payment status polling will be stopped.",
+        descriptionTitle: "Description",
+        namesetLabel: "Name Set",
+        sizeLabel: "Size",
+        conditionLabel: "Condition",
+        addToCartModal: "Add to cart",
+        paypalText: "Pay with",
     }
 };
 
@@ -189,27 +201,55 @@ const t = () => translations[currentLang];
 const products = [
     {
         id: 1,
-        title: "Jersey Arsenal 2000-2001 Away",
-        price: 1600000,
-        image: "arsenal_dreamcast.jpg"
+        title: "FRANCE 2000 HOME KIT",
+        price: 7000000,
+        image: "tampilan_1.jpg",
+        images: ["tampilan_1.jpg", "tampilan_2.jpg", "tampilan_3.jpg"],
+        description: "The France national football team 2000 home kit features a classic blue design with red and white accents, worn during the UEFA Euro 2000 a campaign that ended in glory.",
+        details: {
+            nameset: "4",
+            size: "L",
+            condition: "9/10"
+        }
     },
     {
         id: 2,
-        title: "Jersey Jerman 2014",
-        price: 245000,
-        image: "Jersey_Jerman_2014.jpg"
+        title: "Jersey Arsenal 2000-2001 Away",
+        price: 1600000,
+        image: "arsenal_dreamcast.jpg",
+        images: ["arsenal_dreamcast.jpg"],
+        description: "Jersey klasik Arsenal musim 2000-2001 Away. Sponsor Dreamcast yang legendaris dengan nama BERGKAMP nomor 10.",
+        details: {
+            nameset: "BERGKAMP #10",
+            size: "L",
+            condition: "9.5/10"
+        }
     },
     {
         id: 3,
-        title: "Jersey Liverpool 2021-2022",
-        price: 150000,
-        image: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&q=80&w=400"
+        title: "Jersey Jerman 2014",
+        price: 245000,
+        image: "Jersey_Jerman_2014.jpg",
+        images: ["Jersey_Jerman_2014.jpg"],
+        description: "Jersey kandang Jerman Piala Dunia 2014. Edisi juara dunia keempat bintang.",
+        details: {
+            nameset: "MÜLLER #13",
+            size: "M",
+            condition: "9/10"
+        }
     },
     {
         id: 4,
         title: "Jersey Jepang 2002",
         price: 350000,
-        image: "https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400"
+        image: "https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400",
+        images: ["https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400"],
+        description: "Jersey klasik tim nasional Jepang musim 2002 saat menjadi tuan rumah Piala Dunia bersama Korea Selatan.",
+        details: {
+            nameset: "NAKATA #7",
+            size: "L",
+            condition: "8.5/10"
+        }
     }
 ];
 
@@ -366,7 +406,26 @@ const applyTranslations = () => {
     const successDoneBtn = document.getElementById('success-done-btn');
     if (successDoneBtn) successDoneBtn.innerText = tr.done;
 
-    // Re-render products to update "Add to Cart" tooltip
+    // Detail modal translations
+    const detailDescTitle = document.getElementById('detail-desc-title');
+    if (detailDescTitle) detailDescTitle.innerText = tr.descriptionTitle;
+
+    const detailAddToCart = document.getElementById('detail-add-to-cart');
+    if (detailAddToCart) detailAddToCart.innerText = tr.addToCartModal;
+
+    const paypalTextLabel = document.getElementById('paypal-text-label');
+    if (paypalTextLabel) paypalTextLabel.innerText = tr.paypalText;
+
+    const detailNamesetLabel = document.getElementById('detail-nameset-label');
+    if (detailNamesetLabel) detailNamesetLabel.innerText = tr.namesetLabel + ' :';
+
+    const detailSizeLabel = document.getElementById('detail-size-label');
+    if (detailSizeLabel) detailSizeLabel.innerText = tr.sizeLabel + ' :';
+
+    const detailConditionLabel = document.getElementById('detail-condition-label');
+    if (detailConditionLabel) detailConditionLabel.innerText = tr.conditionLabel + ' :';
+
+    // Re-render products to update
     renderProducts();
     // Re-render cart if open
     const cartModal = document.getElementById('cart-modal');
@@ -398,9 +457,9 @@ const renderProducts = () => {
         productEl.classList.add('product-card');
 
         productEl.innerHTML = `
-            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail(${product.id})" style="cursor: pointer;">
             <div class="product-info">
-                <div class="product-title">${product.title}</div>
+                <div class="product-title" onclick="openProductDetail(${product.id})" style="cursor: pointer;">${product.title}</div>
                 <div class="product-price-row">
                     <div class="product-price">${formatRupiah(product.price)}</div>
                     <button class="btn-yellow-cart" onclick="addToCart(${product.id})" title="${t().addToCartTitle}">
@@ -420,6 +479,98 @@ const addToCart = (productId) => {
     cart.push(product);
     updateCartBadge();
     alert(t().addedToCart(product.title));
+};
+
+// ---- Add to Cart Multiple (dari detail modal) ----
+const addToCartMultiple = (productId, qty) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    for (let i = 0; i < qty; i++) {
+        cart.push(product);
+    }
+    updateCartBadge();
+    alert(t().addedToCart(`${qty}x ${product.title}`));
+};
+
+// ---- PayPal / Buy Now Direct Checkout ----
+const checkoutDirect = (product, qty) => {
+    for (let i = 0; i < qty; i++) {
+        cart.push(product);
+    }
+    updateCartBadge();
+    
+    // Sembunyikan detail modal
+    document.getElementById('product-detail-modal').style.display = 'none';
+    
+    // Tampilkan checkout modal
+    renderCheckoutItems();
+    checkoutModal.style.display = 'block';
+};
+
+// ---- Open Product Detail Modal ----
+const openProductDetail = (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    // Set text dan values
+    document.getElementById('detail-title').innerText = product.title;
+    document.getElementById('detail-price').innerText = formatRupiah(product.price);
+    document.getElementById('detail-qty').value = 1;
+    
+    // Set description & details
+    document.getElementById('detail-description-text').innerText = product.description || '';
+    document.getElementById('detail-spec-nameset').innerText = product.details?.nameset || '-';
+    document.getElementById('detail-spec-size').innerText = product.details?.size || '-';
+    document.getElementById('detail-spec-condition').innerText = product.details?.condition || '-';
+
+    // Set main image
+    const mainImg = document.getElementById('detail-main-img');
+    mainImg.src = product.image;
+    mainImg.alt = product.title;
+
+    // Set thumbnails
+    const thumbnailsContainer = document.getElementById('detail-thumbnails');
+    thumbnailsContainer.innerHTML = '';
+
+    const allImages = product.images || [product.image];
+    
+    allImages.forEach((imgUrl, index) => {
+        const thumbItem = document.createElement('div');
+        thumbItem.classList.add('thumbnail-item');
+        if (imgUrl === product.image) thumbItem.classList.add('active');
+        
+        thumbItem.innerHTML = `<img src="${imgUrl}" alt="${product.title} Thumbnail ${index + 1}">`;
+        
+        thumbItem.addEventListener('click', () => {
+            document.querySelectorAll('.thumbnail-item').forEach(item => item.classList.remove('active'));
+            thumbItem.classList.add('active');
+            mainImg.src = imgUrl;
+        });
+
+        thumbnailsContainer.appendChild(thumbItem);
+    });
+
+    // Event listener Add to Cart (di-clone agar listener lama terhapus)
+    const detailAddToCartBtn = document.getElementById('detail-add-to-cart');
+    const newAddToCartBtn = detailAddToCartBtn.cloneNode(true);
+    detailAddToCartBtn.parentNode.replaceChild(newAddToCartBtn, detailAddToCartBtn);
+    newAddToCartBtn.addEventListener('click', () => {
+        const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+        addToCartMultiple(product.id, qty);
+        document.getElementById('product-detail-modal').style.display = 'none';
+    });
+
+    // Event listener PayPal / Beli Instan (di-clone agar listener lama terhapus)
+    const paypalBtn = document.querySelector('.paypal-btn');
+    const newPaypalBtn = paypalBtn.cloneNode(true);
+    paypalBtn.parentNode.replaceChild(newPaypalBtn, paypalBtn);
+    newPaypalBtn.addEventListener('click', () => {
+        const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+        checkoutDirect(product, qty);
+    });
+
+    // Tampilkan modal
+    document.getElementById('product-detail-modal').style.display = 'block';
 };
 
 // ---- Remove from Cart ----
@@ -527,6 +678,13 @@ if (closeCheckoutBtn) {
     });
 }
 
+const closeDetailBtn = document.querySelector('.close-detail-btn');
+if (closeDetailBtn) {
+    closeDetailBtn.addEventListener('click', () => {
+        document.getElementById('product-detail-modal').style.display = 'none';
+    });
+}
+
 // Success Modal
 const successModal = document.getElementById('success-modal');
 const closeSuccessBtn = document.getElementById('close-success-btn');
@@ -540,6 +698,9 @@ window.addEventListener('click', (event) => {
     if (event.target === modal) modal.style.display = 'none';
     if (event.target === checkoutModal) checkoutModal.style.display = 'none';
     if (event.target === successModal) successModal.style.display = 'none';
+    if (event.target === document.getElementById('product-detail-modal')) {
+        document.getElementById('product-detail-modal').style.display = 'none';
+    }
     if (event.target === document.getElementById('payment-success-overlay')) {
         document.getElementById('payment-success-overlay').style.display = 'none';
     }

@@ -1323,3 +1323,214 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+/* Product Detail Modal Styles */
+.product-detail-content {
+    max-width: 1000px !important;
+    width: 90% !important;
+    padding: 30px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    position: relative;
+    background: #fff;
+    margin: 5% auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.close-detail-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+    z-index: 10;
+    transition: color 0.2s;
+}
+.close-detail-btn:hover {
+    color: #111;
+}
+.product-detail-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+}
+.product-detail-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.main-image-container {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f7f7f7;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.main-image-container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+.thumbnail-list {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+.thumbnail-item {
+    width: 80px;
+    height: 80px;
+    border: 1.5px solid #eaeaea;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #f7f7f7;
+    transition: border-color 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+.thumbnail-item:hover, .thumbnail-item.active {
+    border-color: #333;
+}
+.thumbnail-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.product-detail-right {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+#detail-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #111;
+    margin-bottom: 15px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+#detail-price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+}
+.detail-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+.qty-selector {
+    width: 70px;
+}
+.qty-selector input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 16px;
+    background: #f5f5f5;
+    font-weight: 600;
+}
+.detail-cart-btn {
+    flex: 1;
+    background: #235950;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: capitalize;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.detail-cart-btn:hover {
+    background: #193f39;
+}
+
+.paypal-btn {
+    width: 100%;
+    background: #ffc439;
+    border: none;
+    border-radius: 30px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.2s;
+}
+.paypal-btn:hover {
+    background: #f4b41a;
+}
+.paypal-logo i {
+    font-weight: bold;
+    font-style: italic;
+}
+.paypal-logo i:first-child {
+    color: #003087;
+}
+.paypal-logo i:last-child {
+    color: #0079c1;
+}
+
+.detail-description-section {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+.detail-description-section h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #333;
+}
+.detail-specs {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+}
+.spec-row {
+    color: #555;
+}
+.spec-row strong {
+    color: #333;
+    display: inline-block;
+    width: 110px;
+}
+#detail-description-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .product-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}

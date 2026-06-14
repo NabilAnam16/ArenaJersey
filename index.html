@@ -321,7 +321,54 @@
             </div>
         </div>
 
-        <!-- Success Modal -->
+        <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="modal" style="z-index: 1050;">
+        <div class="modal-content product-detail-content">
+            <span class="close-detail-btn close-btn">&times;</span>
+            <div class="product-detail-grid">
+                <!-- Left Column: Images -->
+                <div class="product-detail-left">
+                    <div class="main-image-container">
+                        <img id="detail-main-img" src="" alt="Main Product Image">
+                    </div>
+                    <div id="detail-thumbnails" class="thumbnail-list">
+                        <!-- Thumbnails injected by JS -->
+                    </div>
+                </div>
+                <!-- Right Column: Info -->
+                <div class="product-detail-right">
+                    <h2 id="detail-title">Product Title</h2>
+                    <h3 id="detail-price">Rp0</h3>
+                    
+                    <!-- Add to Cart / Qty -->
+                    <div class="detail-actions">
+                        <div class="qty-selector">
+                            <input type="number" id="detail-qty" value="1" min="1">
+                        </div>
+                        <button id="detail-add-to-cart" class="detail-cart-btn">Add to cart</button>
+                    </div>
+                    
+                    <!-- PayPal Express Checkout Button -->
+                    <button class="paypal-btn">
+                        <span id="paypal-text-label">Bayar dengan</span> <span class="paypal-logo"><i>Pay</i><i>Pal</i></span>
+                    </button>
+                    
+                    <!-- Description & Attributes -->
+                    <div class="detail-description-section">
+                        <h4 id="detail-desc-title">Description</h4>
+                        <div class="detail-specs">
+                            <div class="spec-row"><strong id="detail-nameset-label">Name Set :</strong> <span id="detail-spec-nameset">-</span></div>
+                            <div class="spec-row"><strong id="detail-size-label">Size :</strong> <span id="detail-spec-size">-</span></div>
+                            <div class="spec-row"><strong id="detail-condition-label">Condition :</strong> <span id="detail-spec-condition">-</span></div>
+                        </div>
+                        <p id="detail-description-text">Description goes here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
         <div id="success-modal" class="modal" style="z-index: 1100;">
             <div class="modal-content" style="text-align: center; max-width: 450px; padding: 50px 30px;">
                 <div style="font-size: 60px; color: var(--green-accent); margin-bottom: 20px;">
