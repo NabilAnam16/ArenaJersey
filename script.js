@@ -498,10 +498,10 @@ const checkoutDirect = (product, qty) => {
         cart.push(product);
     }
     updateCartBadge();
-    
+
     // Sembunyikan detail modal
     document.getElementById('product-detail-modal').style.display = 'none';
-    
+
     // Tampilkan checkout modal
     renderCheckoutItems();
     checkoutModal.style.display = 'block';
@@ -516,7 +516,7 @@ const openProductDetail = (productId) => {
     document.getElementById('detail-title').innerText = product.title;
     document.getElementById('detail-price').innerText = formatRupiah(product.price);
     document.getElementById('detail-qty').value = 1;
-    
+
     // Set description & details
     document.getElementById('detail-description-text').innerText = product.description || '';
     document.getElementById('detail-spec-nameset').innerText = product.details?.nameset || '-';
@@ -533,14 +533,14 @@ const openProductDetail = (productId) => {
     thumbnailsContainer.innerHTML = '';
 
     const allImages = product.images || [product.image];
-    
+
     allImages.forEach((imgUrl, index) => {
         const thumbItem = document.createElement('div');
         thumbItem.classList.add('thumbnail-item');
         if (imgUrl === product.image) thumbItem.classList.add('active');
-        
+
         thumbItem.innerHTML = `<img src="${imgUrl}" alt="${product.title} Thumbnail ${index + 1}">`;
-        
+
         thumbItem.addEventListener('click', () => {
             document.querySelectorAll('.thumbnail-item').forEach(item => item.classList.remove('active'));
             thumbItem.classList.add('active');
@@ -907,7 +907,31 @@ paymentRadios.forEach(radio => {
         }
     });
 });
-
+// ---- Load Produk dari Supabase ----
+const loadProductsFromAPI = async () => {
+    try {
+        const res = await fetch('/api/get-products');
+        const data = await res.json();
+        if (data.products && data.products.length > 0) {
+            products.length = 0;
+            data.products.forEach(p => {
+                products.push({
+                    ...p,
+                    image: p.images?.[0] || 'https://via.placeholder.com/400',
+                    details: {
+                        nameset: p.nameset || '-',
+                        size: p.sizes?.[0] || '-',
+                        condition: p.kondisi || '-'
+                    }
+                });
+            });
+        }
+        renderProducts();
+    } catch (err) {
+        console.error('Gagal load produk:', err);
+        renderProducts();
+    }
+};
 // ---- Lang Toggle Button Event ----
 document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan tombol bahasa ke navbar
@@ -938,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navbar.insertBefore(langBtn, cartIconEl);
     }
 
-    renderProducts();
+    loadProductsFromAPI();
     applyTranslations();
     startSlideshow();
 });
