@@ -198,7 +198,7 @@ const translations = {
 let currentLang = 'id';
 const t = () => translations[currentLang];
 
-const products = [
+let products = [
     {
         id: 1,
         title: "FRANCE 2000 HOME KIT",
