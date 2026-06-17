@@ -186,32 +186,7 @@ const translations = {
 let currentLang = 'id';
 const t = () => translations[currentLang];
 
-const products = [
-    {
-        id: 1,
-        title: "Jersey Arsenal 2000-2001 Away",
-        price: 1600000,
-        image: "arsenal_dreamcast.jpg"
-    },
-    {
-        id: 2,
-        title: "Jersey Jerman 2014",
-        price: 245000,
-        image: "Jersey_Jerman_2014.jpg"
-    },
-    {
-        id: 3,
-        title: "Jersey Liverpool 2021-2022",
-        price: 150000,
-        image: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&q=80&w=400"
-    },
-    {
-        id: 4,
-        title: "Jersey Jepang 2002",
-        price: 350000,
-        image: "https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400"
-    }
-];
+let products = [];
 
 let cart = [];
 let pollingInterval = null;
