@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracking Pesanan - Arena Jersey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #f5f5f5; min-height: 100vh; }
+    
+    .header {
+      background: #1a1a1a; color: white; padding: 20px 30px;
+      display: flex; align-items: center; gap: 15px;
+    }
+    .header h1 { font-size: 20px; }
+    .header a { color: #2ecc71; text-decoration: none; font-size: 14px; }
+
+    .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+
+    .search-box {
+      background: white; border-radius: 16px; padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px;
+    }
+    .search-box h2 { margin-bottom: 20px; font-size: 22px; }
+    .search-box input {
+      width: 100%; padding: 12px 16px; border: 2px solid #ddd;
+      border-radius: 10px; font-size: 15px; margin-bottom: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .search-box input:focus { outline: none; border-color: #2ecc71; }
+    .search-box button {
+      width: 100%; padding: 13px; background: #2ecc71; color: white;
+      border: none; border-radius: 10px; font-size: 16px;
+      font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .result-box {
+      background: white; border-radius: 16px; padding: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: none;
+    }
+    .result-box h3 { margin-bottom: 20px; font-size: 18px; }
+
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: #999; }
+    .info-row strong { font-weight: 700; }
+
+    .status-badge {
+      padding: 5px 14px; border-radius: 30px; font-size: 13px; font-weight: 700;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-shipped { background: #cce5ff; color: #004085; }
+    .status-delivered { background: #d4edda; color: #155724; }
+
+    .timeline { margin-top: 25px; }
+    .timeline h4 { margin-bottom: 15px; font-size: 16px; }
+    .timeline-item {
+      display: flex; gap: 15px; margin-bottom: 15px;
+    }
+    .timeline-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #ddd; margin-top: 3px; flex-shrink: 0;
+    }
+    .timeline-dot.active { background: #2ecc71; }
+    .timeline-content p { font-size: 14px; font-weight: 600; }
+    .timeline-content small { color: #999; font-size: 12px; }
+
+    .error-msg { color: #e74c3c; text-align: center; padding: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📦 Tracking Pesanan</h1>
+    <a href="/">← Kembali ke toko</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="search-box">
+    <h2>Cek Status Pesananmu</h2>
+    <input type="text" id="order-id-input" placeholder="Masukkan Order ID (contoh: AJ-1234567890)">
+    <button onclick="trackOrder()">🔍 Cek Pesanan</button>
+    <p id="search-error" style="color:#e74c3c; margin-top:10px; font-size:13px;"></p>
+  </div>
+
+  <div class="result-box" id="result-box">
+    <h3>Detail Pesanan</h3>
+    <div class="info-row">
+      <span>Order ID</span>
+      <strong id="res-order-id">-</strong>
+    </div>
+    <div class="info-row">
+      <span>Nama</span>
+      <strong id="res-name">-</strong>
+    </div>
+    <div class="info-row">
+      <span>Total</span>
+      <strong id="res-total">-</strong>
+    </div>
+    <div class="info-row">
+      <span>Status Pembayaran</span>
+      <strong id="res-status">-</strong>
+    </div>
+    <div class="info-row">
+      <span>Kurir</span>
+      <strong id="res-kurir">-</strong>
+    </div>
+    <div class="info-row">
+      <span>No. Resi</span>
+      <strong id="res-resi">-</strong>
+    </div>
+    <div class="info-row">
+      <span>Status Pengiriman</span>
+      <span id="res-pengiriman">-</span>
+    </div>
+
+    <div class="timeline">
+      <h4>Timeline Pengiriman</h4>
+      <div class="timeline-item">
+        <div class="timeline-dot active" id="dot-ordered"></div>
+        <div class="timeline-content">
+          <p>Pesanan Diterima</p>
+          <small>Pembayaran dikonfirmasi</small>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" id="dot-shipped"></div>
+        <div class="timeline-content">
+          <p>Pesanan Dikirim</p>
+          <small id="label-shipped">Menunggu pengiriman</small>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot" id="dot-delivered"></div>
+        <div class="timeline-content">
+          <p>Pesanan Tiba</p>
+          <small>Paket telah diterima</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const formatRupiah = (n) => new Intl.NumberFormat('id-ID', {
+  style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+}).format(n);
+
+const trackOrder = async () => {
+  const orderId = document.getElementById('order-id-input').value.trim();
+  const errorEl = document.getElementById('search-error');
+  const resultBox = document.getElementById('result-box');
+
+  if (!orderId) {
+    errorEl.innerText = 'Masukkan Order ID terlebih dahulu!';
+    return;
+  }
+
+  errorEl.innerText = '';
+  resultBox.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/track-order?order_id=${orderId}`);
+    const data = await res.json();
+
+    if (data.error) {
+      errorEl.innerText = '❌ ' + (data.error === 'Pesanan tidak ditemukan' ? 
+        'Pesanan tidak ditemukan. Pastikan Order ID sudah benar.' : data.error);
+      return;
+    }
+
+    const order = data.order;
+
+    document.getElementById('res-order-id').innerText = order.order_id;
+    document.getElementById('res-name').innerText = order.customer_name || '-';
+    document.getElementById('res-total').innerText = formatRupiah(order.total);
+    document.getElementById('res-status').innerText = order.status === 'paid' ? '✅ Lunas' : '⏳ Pending';
+    document.getElementById('res-kurir').innerText = order.kurir || '-';
+    document.getElementById('res-resi').innerText = order.resi || 'Belum ada resi';
+
+    const statusEl = document.getElementById('res-pengiriman');
+    const status = order.status_pengiriman;
+    if (status === 'shipped') {
+      statusEl.innerHTML = '<span class="status-badge status-shipped">🚚 Dalam Pengiriman</span>';
+      document.getElementById('dot-shipped').classList.add('active');
+      document.getElementById('label-shipped').innerText = `Resi: ${order.resi} (${order.kurir})`;
+    } else if (status === 'delivered') {
+      statusEl.innerHTML = '<span class="status-badge status-delivered">✅ Sudah Sampai</span>';
+      document.getElementById('dot-shipped').classList.add('active');
+      document.getElementById('dot-delivered').classList.add('active');
+      document.getElementById('label-shipped').innerText = `Resi: ${order.resi} (${order.kurir})`;
+    } else {
+      statusEl.innerHTML = '<span class="status-badge status-pending">⏳ Diproses</span>';
+    }
+
+    resultBox.style.display = 'block';
+  } catch (err) {
+    errorEl.innerText = '❌ Terjadi kesalahan. Coba lagi.';
+  }
+};
+
+document.getElementById('order-id-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') trackOrder();
+});
+</script>
+
+</body>
+</html>
