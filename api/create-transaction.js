@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
         }
 
         // Server Key Midtrans (diambil dari environment variable)
-        const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || 'SB-Mid-server-JgT4R99gP7v-C_N2r1t7qNqA'; // Fallback Sandbox Key default jika belum diatur
+        const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY; // Fallback Sandbox Key default jika belum diatur
         const encoded = Buffer.from(MIDTRANS_SERVER_KEY + ':').toString('base64');
 
         // Data transaksi yang dikirim ke Midtrans Snap
