@@ -104,12 +104,15 @@ const translations = {
         checkFailed: "Gagal mengecek status pembayaran. Silakan coba lagi.",
         expiredMsg: "Transaksi kedaluwarsa atau dibatalkan.",
         cancelConfirm: "Apakah Anda yakin ingin menutup halaman pembayaran? Polling status pembayaran otomatis akan dihentikan.",
+<<<<<<< HEAD
         descriptionTitle: "Deskripsi",
         namesetLabel: "Name Set",
         sizeLabel: "Ukuran",
         conditionLabel: "Kondisi",
         addToCartModal: "Tambah ke Keranjang",
         paypalText: "Bayar dengan",
+=======
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     },
     en: {
         // Navbar
@@ -185,12 +188,15 @@ const translations = {
         checkFailed: "Failed to check payment status. Please try again.",
         expiredMsg: "Transaction expired or cancelled.",
         cancelConfirm: "Are you sure you want to close the payment page? Automatic payment status polling will be stopped.",
+<<<<<<< HEAD
         descriptionTitle: "Description",
         namesetLabel: "Name Set",
         sizeLabel: "Size",
         conditionLabel: "Condition",
         addToCartModal: "Add to cart",
         paypalText: "Pay with",
+=======
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     }
 };
 
@@ -198,6 +204,7 @@ const translations = {
 let currentLang = 'id';
 const t = () => translations[currentLang];
 
+<<<<<<< HEAD
 let products = [
     {
         id: 1,
@@ -237,11 +244,32 @@ let products = [
             size: "M",
             condition: "9/10"
         }
+=======
+const products = [
+    {
+        id: 1,
+        title: "Jersey Arsenal 2000-2001 Away",
+        price: 1600000,
+        image: "arsenal_dreamcast.jpg"
+    },
+    {
+        id: 2,
+        title: "Jersey Jerman 2014",
+        price: 245000,
+        image: "Jersey_Jerman_2014.jpg"
+    },
+    {
+        id: 3,
+        title: "Jersey Liverpool 2021-2022",
+        price: 150000,
+        image: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&q=80&w=400"
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     },
     {
         id: 4,
         title: "Jersey Jepang 2002",
         price: 350000,
+<<<<<<< HEAD
         image: "https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400",
         images: ["https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400"],
         description: "Jersey klasik tim nasional Jepang musim 2002 saat menjadi tuan rumah Piala Dunia bersama Korea Selatan.",
@@ -250,6 +278,9 @@ let products = [
             size: "L",
             condition: "8.5/10"
         }
+=======
+        image: "https://images.unsplash.com/photo-1556822284-ce444005b5db?auto=format&fit=crop&q=80&w=400"
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     }
 ];
 
@@ -406,6 +437,7 @@ const applyTranslations = () => {
     const successDoneBtn = document.getElementById('success-done-btn');
     if (successDoneBtn) successDoneBtn.innerText = tr.done;
 
+<<<<<<< HEAD
     // Detail modal translations
     const detailDescTitle = document.getElementById('detail-desc-title');
     if (detailDescTitle) detailDescTitle.innerText = tr.descriptionTitle;
@@ -426,6 +458,9 @@ const applyTranslations = () => {
     if (detailConditionLabel) detailConditionLabel.innerText = tr.conditionLabel + ' :';
 
     // Re-render products to update
+=======
+    // Re-render products to update "Add to Cart" tooltip
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     renderProducts();
     // Re-render cart if open
     const cartModal = document.getElementById('cart-modal');
@@ -457,9 +492,15 @@ const renderProducts = () => {
         productEl.classList.add('product-card');
 
         productEl.innerHTML = `
+<<<<<<< HEAD
             <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail(${product.id})" style="cursor: pointer;">
             <div class="product-info">
                 <div class="product-title" onclick="openProductDetail(${product.id})" style="cursor: pointer;">${product.title}</div>
+=======
+            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <div class="product-info">
+                <div class="product-title">${product.title}</div>
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
                 <div class="product-price-row">
                     <div class="product-price">${formatRupiah(product.price)}</div>
                     <button class="btn-yellow-cart" onclick="addToCart(${product.id})" title="${t().addToCartTitle}">
@@ -481,6 +522,7 @@ const addToCart = (productId) => {
     alert(t().addedToCart(product.title));
 };
 
+<<<<<<< HEAD
 // ---- Add to Cart Multiple (dari detail modal) ----
 const addToCartMultiple = (productId, qty) => {
     const product = products.find(p => p.id === productId);
@@ -573,6 +615,8 @@ const openProductDetail = (productId) => {
     document.getElementById('product-detail-modal').style.display = 'block';
 };
 
+=======
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
 // ---- Remove from Cart ----
 const removeFromCart = (index) => {
     cart.splice(index, 1);
@@ -678,6 +722,7 @@ if (closeCheckoutBtn) {
     });
 }
 
+<<<<<<< HEAD
 const closeDetailBtn = document.querySelector('.close-detail-btn');
 if (closeDetailBtn) {
     closeDetailBtn.addEventListener('click', () => {
@@ -685,6 +730,8 @@ if (closeDetailBtn) {
     });
 }
 
+=======
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
 // Success Modal
 const successModal = document.getElementById('success-modal');
 const closeSuccessBtn = document.getElementById('close-success-btn');
@@ -698,9 +745,12 @@ window.addEventListener('click', (event) => {
     if (event.target === modal) modal.style.display = 'none';
     if (event.target === checkoutModal) checkoutModal.style.display = 'none';
     if (event.target === successModal) successModal.style.display = 'none';
+<<<<<<< HEAD
     if (event.target === document.getElementById('product-detail-modal')) {
         document.getElementById('product-detail-modal').style.display = 'none';
     }
+=======
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     if (event.target === document.getElementById('payment-success-overlay')) {
         document.getElementById('payment-success-overlay').style.display = 'none';
     }
@@ -907,6 +957,7 @@ paymentRadios.forEach(radio => {
         }
     });
 });
+<<<<<<< HEAD
 // ---- Load Produk dari Supabase ----
 const loadProductsFromAPI = async () => {
     try {
@@ -932,6 +983,9 @@ const loadProductsFromAPI = async () => {
         renderProducts();
     }
 };
+=======
+
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
 // ---- Lang Toggle Button Event ----
 document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan tombol bahasa ke navbar
@@ -962,7 +1016,11 @@ document.addEventListener('DOMContentLoaded', () => {
         navbar.insertBefore(langBtn, cartIconEl);
     }
 
+<<<<<<< HEAD
     loadProductsFromAPI();
+=======
+    renderProducts();
+>>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
     applyTranslations();
     startSlideshow();
 });
