@@ -5,8 +5,3 @@
     { "src": "/admin.html", "dest": "/admin.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
