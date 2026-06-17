@@ -746,7 +746,25 @@ paymentRadios.forEach(radio => {
         }
     });
 });
-
+const loadProductsFromAPI = async () => {
+    try {
+        const res = await fetch('/api/get-products');
+        const data = await res.json();
+        if (data.products && data.products.length > 0) {
+            products.length = 0;
+            data.products.forEach(p => {
+                products.push({
+                    ...p,
+                    image: p.images?.[0] || p.image || 'https://via.placeholder.com/400'
+                });
+            });
+        }
+        renderProducts();
+    } catch (err) {
+        console.error('Gagal load produk:', err);
+        renderProducts();
+    }
+};
 // ---- Lang Toggle Button Event ----
 document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan tombol bahasa ke navbar
@@ -777,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navbar.insertBefore(langBtn, cartIconEl);
     }
 
-    renderProducts();
+    loadProductsFromAPI();
     applyTranslations();
     startSlideshow();
 });
