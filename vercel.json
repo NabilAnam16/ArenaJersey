@@ -3,6 +3,7 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/admin.html", "dest": "/admin.html" },
+    { "src": "/tracking.html", "dest": "/tracking.html" },
     { "src": "/(.*\\.css)", "dest": "/$1" },
     { "src": "/(.*\\.js)", "dest": "/$1" },
     { "src": "/(.*\\.jpg)", "dest": "/$1" },
