@@ -104,6 +104,12 @@ const translations = {
         checkFailed: "Gagal mengecek status pembayaran. Silakan coba lagi.",
         expiredMsg: "Transaksi kedaluwarsa atau dibatalkan.",
         cancelConfirm: "Apakah Anda yakin ingin menutup halaman pembayaran? Polling status pembayaran otomatis akan dihentikan.",
+        descriptionTitle: "Deskripsi",
+        namesetLabel: "Name Set",
+        sizeLabel: "Ukuran",
+        conditionLabel: "Kondisi",
+        addToCartModal: "Tambah ke Keranjang",
+        paypalText: "Bayar dengan",
     },
     en: {
         // Navbar
@@ -179,6 +185,12 @@ const translations = {
         checkFailed: "Failed to check payment status. Please try again.",
         expiredMsg: "Transaction expired or cancelled.",
         cancelConfirm: "Are you sure you want to close the payment page? Automatic payment status polling will be stopped.",
+        descriptionTitle: "Description",
+        namesetLabel: "Name Set",
+        sizeLabel: "Size",
+        conditionLabel: "Condition",
+        addToCartModal: "Add to cart",
+        paypalText: "Pay with",
     }
 };
 
@@ -341,6 +353,25 @@ const applyTranslations = () => {
     const successDoneBtn = document.getElementById('success-done-btn');
     if (successDoneBtn) successDoneBtn.innerText = tr.done;
 
+    // Detail modal translations
+    const detailDescTitle = document.getElementById('detail-desc-title');
+    if (detailDescTitle) detailDescTitle.innerText = tr.descriptionTitle;
+
+    const detailAddToCart = document.getElementById('detail-add-to-cart');
+    if (detailAddToCart) detailAddToCart.innerText = tr.addToCartModal;
+
+    const paypalTextLabel = document.getElementById('paypal-text-label');
+    if (paypalTextLabel) paypalTextLabel.innerText = tr.paypalText;
+
+    const detailNamesetLabel = document.getElementById('detail-nameset-label');
+    if (detailNamesetLabel) detailNamesetLabel.innerText = tr.namesetLabel + ' :';
+
+    const detailSizeLabel = document.getElementById('detail-size-label');
+    if (detailSizeLabel) detailSizeLabel.innerText = tr.sizeLabel + ' :';
+
+    const detailConditionLabel = document.getElementById('detail-condition-label');
+    if (detailConditionLabel) detailConditionLabel.innerText = tr.conditionLabel + ' :';
+
     // Re-render products to update "Add to Cart" tooltip
     renderProducts();
     // Re-render cart if open
@@ -373,9 +404,9 @@ const renderProducts = () => {
         productEl.classList.add('product-card');
 
         productEl.innerHTML = `
-            <img src="${product.image}" alt="${product.title}" class="product-image">
+            <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail(${product.id})" style="cursor: pointer;">
             <div class="product-info">
-                <div class="product-title">${product.title}</div>
+                <div class="product-title" onclick="openProductDetail(${product.id})" style="cursor: pointer;">${product.title}</div>
                 <div class="product-price-row">
                     <div class="product-price">${formatRupiah(product.price)}</div>
                     <button class="btn-yellow-cart" onclick="addToCart(${product.id})" title="${t().addToCartTitle}">
@@ -395,6 +426,123 @@ const addToCart = (productId) => {
     cart.push(product);
     updateCartBadge();
     alert(t().addedToCart(product.title));
+};
+
+// ---- Add to Cart Multiple (dari detail modal) ----
+const addToCartMultiple = (productId, qty) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    for (let i = 0; i < qty; i++) {
+        cart.push(product);
+    }
+    updateCartBadge();
+    alert(t().addedToCart(`${qty}x ${product.title}`));
+};
+
+// ---- PayPal / Buy Now Direct Checkout ----
+const checkoutDirect = (product, qty) => {
+    for (let i = 0; i < qty; i++) {
+        cart.push(product);
+    }
+    updateCartBadge();
+    
+    // Sembunyikan detail modal
+    document.getElementById('product-detail-modal').style.display = 'none';
+    
+    // Tampilkan checkout modal
+    renderCheckoutItems();
+    checkoutModal.style.display = 'block';
+};
+
+// ---- Open Product Detail Modal ----
+const openProductDetail = (productId) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    // Set text dan values
+    document.getElementById('detail-title').innerText = product.title;
+    document.getElementById('detail-price').innerText = formatRupiah(product.price);
+    document.getElementById('detail-qty').value = 1;
+    
+    // Set description & details
+    document.getElementById('detail-description-text').innerText = product.description || '';
+    
+    // Nameset
+    const namesetValue = product.nameset || product.details?.nameset || '-';
+    document.getElementById('detail-spec-nameset').innerText = namesetValue;
+    const namesetRow = document.getElementById('detail-nameset-label')?.closest('.spec-row');
+    if (namesetRow) {
+        namesetRow.style.display = (namesetValue === '-') ? 'none' : 'block';
+    }
+
+    // Size
+    let sizesText = '-';
+    if (Array.isArray(product.sizes)) {
+        sizesText = product.sizes.join(', ');
+    } else if (product.sizes) {
+        sizesText = product.sizes;
+    } else if (product.details?.size) {
+        sizesText = product.details.size;
+    }
+    document.getElementById('detail-spec-size').innerText = sizesText;
+
+    // Condition
+    const conditionValue = product.kondisi || product.condition || product.details?.condition || '-';
+    document.getElementById('detail-spec-condition').innerText = conditionValue;
+
+    // Set main image
+    const mainImg = document.getElementById('detail-main-img');
+    const defaultImage = product.image || (product.images && product.images[0]) || 'https://via.placeholder.com/400';
+    mainImg.src = defaultImage;
+    mainImg.alt = product.title;
+
+    // Set thumbnails
+    const thumbnailsContainer = document.getElementById('detail-thumbnails');
+    thumbnailsContainer.innerHTML = '';
+
+    const allImages = (Array.isArray(product.images) && product.images.length > 0) ? product.images : [defaultImage];
+    
+    allImages.forEach((imgUrl, index) => {
+        const thumbItem = document.createElement('div');
+        thumbItem.classList.add('thumbnail-item');
+        if (imgUrl === defaultImage) thumbItem.classList.add('active');
+        
+        thumbItem.innerHTML = `<img src="${imgUrl}" alt="${product.title} Thumbnail ${index + 1}">`;
+        
+        thumbItem.addEventListener('click', () => {
+            document.querySelectorAll('.thumbnail-item').forEach(item => item.classList.remove('active'));
+            thumbItem.classList.add('active');
+            mainImg.src = imgUrl;
+        });
+
+        thumbnailsContainer.appendChild(thumbItem);
+    });
+
+    // Event listener Add to Cart (di-clone agar listener lama terhapus)
+    const detailAddToCartBtn = document.getElementById('detail-add-to-cart');
+    if (detailAddToCartBtn) {
+        const newAddToCartBtn = detailAddToCartBtn.cloneNode(true);
+        detailAddToCartBtn.parentNode.replaceChild(newAddToCartBtn, detailAddToCartBtn);
+        newAddToCartBtn.addEventListener('click', () => {
+            const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+            addToCartMultiple(product.id, qty);
+            document.getElementById('product-detail-modal').style.display = 'none';
+        });
+    }
+
+    // Event listener PayPal / Beli Instan (di-clone agar listener lama terhapus)
+    const paypalBtn = document.querySelector('.paypal-btn');
+    if (paypalBtn) {
+        const newPaypalBtn = paypalBtn.cloneNode(true);
+        paypalBtn.parentNode.replaceChild(newPaypalBtn, paypalBtn);
+        newPaypalBtn.addEventListener('click', () => {
+            const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+            checkoutDirect(product, qty);
+        });
+    }
+
+    // Tampilkan modal
+    document.getElementById('product-detail-modal').style.display = 'block';
 };
 
 // ---- Remove from Cart ----
@@ -502,6 +650,13 @@ if (closeCheckoutBtn) {
     });
 }
 
+const closeDetailBtn = document.querySelector('.close-detail-btn');
+if (closeDetailBtn) {
+    closeDetailBtn.addEventListener('click', () => {
+        document.getElementById('product-detail-modal').style.display = 'none';
+    });
+}
+
 // Success Modal
 const successModal = document.getElementById('success-modal');
 const closeSuccessBtn = document.getElementById('close-success-btn');
@@ -515,6 +670,9 @@ window.addEventListener('click', (event) => {
     if (event.target === modal) modal.style.display = 'none';
     if (event.target === checkoutModal) checkoutModal.style.display = 'none';
     if (event.target === successModal) successModal.style.display = 'none';
+    if (event.target === document.getElementById('product-detail-modal')) {
+        document.getElementById('product-detail-modal').style.display = 'none';
+    }
     if (event.target === document.getElementById('payment-success-overlay')) {
         document.getElementById('payment-success-overlay').style.display = 'none';
     }
@@ -532,7 +690,7 @@ if (checkoutBtn) {
     });
 }
 
-// ---- Midtrans Snap Checkout ----
+// ---- QRIS Manual Checkout ----
 if (placeOrderBtn) {
     placeOrderBtn.addEventListener('click', async () => {
         const firstName = document.getElementById('checkout-firstname').value.trim();
@@ -541,7 +699,6 @@ if (placeOrderBtn) {
         const city = document.getElementById('checkout-city').value.trim();
         const phone = document.getElementById('checkout-phone').value.trim();
         const email = document.getElementById('checkout-email') ? document.getElementById('checkout-email').value.trim() : "";
-        const notes = document.getElementById('checkout-notes') ? document.getElementById('checkout-notes').value.trim() : "";
 
         if (!firstName || !address || !city || !phone) {
             alert(t().fillRequired);
@@ -549,75 +706,59 @@ if (placeOrderBtn) {
         }
 
         const originalBtnText = placeOrderBtn.innerText;
-        placeOrderBtn.innerText = t().connectingMidtrans;
+        placeOrderBtn.innerText = 'Menyimpan pesanan...';
         placeOrderBtn.disabled = true;
 
         let total = 0;
         cart.forEach(item => { total += item.price; });
+        total += ongkirAmount || 0;
 
         const orderId = `AJ-${Date.now()}`;
 
-        const customerData = {
-            firstName,
-            lastName,
-            email: email || `${phone}@arenajersey.com`,
-            phone,
-            address,
-            city
-        };
+        const customerData = { firstName, lastName, email: email || `${phone}@arenajersey.com`, phone, address, city };
 
         try {
-            const response = await fetch('/api/create-transaction', {
+            const response = await fetch('/api/create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     order_id: orderId,
-                    gross_amount: total,
                     customer: customerData,
-                    items: cart
+                    items: cart,
+                    total: total
                 })
             });
 
             const data = await response.json();
 
             if (data.error) {
-                alert(t().failedTransaction(data.error));
-                placeOrderBtn.innerText = t().placeOrder;
+                alert('Gagal membuat pesanan: ' + data.error);
+                placeOrderBtn.innerText = originalBtnText;
                 placeOrderBtn.disabled = false;
                 return;
             }
 
-            const snapToken = data.snap_token;
-
-            window.snap.pay(snapToken, {
-                onSuccess: function (result) {
-                    checkoutModal.style.display = 'none';
-                    showSuccessOverlay(orderId, total, result.payment_type || 'Transfer/QRIS');
-                },
-                onPending: function (result) {
-                    checkoutModal.style.display = 'none';
-                    startPolling(orderId, total);
-                },
-                onError: function (result) {
-                    alert(t().paymentFailed);
-                    placeOrderBtn.innerText = t().placeOrder;
-                    placeOrderBtn.disabled = false;
-                },
-                onClose: function () {
-                    alert(t().popupClosed);
-                    placeOrderBtn.innerText = t().placeOrder;
-                    placeOrderBtn.disabled = false;
-                }
-            });
+            checkoutModal.style.display = 'none';
+            showOrderConfirmation(orderId, total);
 
         } catch (error) {
             console.error('Checkout error:', error);
-            alert(t().connectionError);
-            placeOrderBtn.innerText = t().placeOrder;
+            alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
+            placeOrderBtn.innerText = originalBtnText;
             placeOrderBtn.disabled = false;
         }
     });
 }
+
+// ---- Order Confirmation Overlay ----
+const showOrderConfirmation = (orderId, total) => {
+    cart = [];
+    updateCartBadge();
+    document.getElementById('success-order-id').innerText = orderId;
+    document.getElementById('success-total-price').innerText = formatRupiah(total);
+    document.getElementById('success-payment-type').innerText = 'QRIS (Menunggu Konfirmasi)';
+    document.getElementById('payment-success-overlay').style.display = 'flex';
+};}
 
 // ---- Polling ----
 const startPolling = (orderId, total) => {
