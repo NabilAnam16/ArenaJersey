@@ -758,7 +758,7 @@ const showOrderConfirmation = (orderId, total) => {
     document.getElementById('success-total-price').innerText = formatRupiah(total);
     document.getElementById('success-payment-type').innerText = 'QRIS (Menunggu Konfirmasi)';
     document.getElementById('payment-success-overlay').style.display = 'flex';
-};}
+};
 
 // ---- Polling ----
 const startPolling = (orderId, total) => {
