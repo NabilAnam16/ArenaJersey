@@ -740,7 +740,7 @@ if (placeOrderBtn) {
 
             checkoutModal.style.display = 'none';
             showOrderConfirmation(orderId, total);
-
+            alert(`✅ Pesanan berhasil dibuat!\n\nOrder ID: ${orderId}\nTotal: ${formatRupiah(total)}\n\nSilakan cek halaman tracking untuk melihat status pesanan.`);
         } catch (error) {
             console.error('Checkout error:', error);
             alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
