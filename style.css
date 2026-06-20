@@ -1322,7 +1322,6 @@ body {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
-<<<<<<< HEAD
 }
 
 /* Product Detail Modal Styles */
@@ -1534,6 +1533,4 @@ body {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-=======
->>>>>>> cf2231ea312c3dc94894637a35a3a44fc13a12ed
 }
