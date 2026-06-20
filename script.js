@@ -404,12 +404,12 @@ const renderProducts = () => {
         productEl.classList.add('product-card');
 
         productEl.innerHTML = `
-            <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail(${product.id})" style="cursor: pointer;">
+            <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail('${product.id}')" style="cursor: pointer;">
             <div class="product-info">
-                <div class="product-title" onclick="openProductDetail(${product.id})" style="cursor: pointer;">${product.title}</div>
+                <div class="product-title" onclick="openProductDetail('${product.id}')" style="cursor: pointer;">${product.title}</div>
                 <div class="product-price-row">
                     <div class="product-price">${formatRupiah(product.price)}</div>
-                    <button class="btn-yellow-cart" onclick="addToCart(${product.id})" title="${t().addToCartTitle}">
+                    <button class="btn-yellow-cart" onclick="addToCart('${product.id}')" title="${t().addToCartTitle}">
                         <i class="fa-solid fa-cart-plus"></i>
                     </button>
                 </div>
@@ -422,7 +422,7 @@ const renderProducts = () => {
 
 // ---- Add to Cart ----
 const addToCart = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => String(p.id) === String(productId));
     cart.push(product);
     updateCartBadge();
     alert(t().addedToCart(product.title));
@@ -430,7 +430,7 @@ const addToCart = (productId) => {
 
 // ---- Add to Cart Multiple (dari detail modal) ----
 const addToCartMultiple = (productId, qty) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => String(p.id) === String(productId));
     if (!product) return;
     for (let i = 0; i < qty; i++) {
         cart.push(product);
@@ -456,7 +456,7 @@ const checkoutDirect = (product, qty) => {
 
 // ---- Open Product Detail Modal ----
 const openProductDetail = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => String(p.id) === String(productId));
     if (!product) return;
 
     // Set text dan values
