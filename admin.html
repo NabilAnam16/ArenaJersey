@@ -48,6 +48,7 @@ body { font-family: 'Arial', sans-serif; background: #f5f5f5; }
 .btn-confirm-bayar { padding: 6px 12px; background: #9b59b6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 4px; display: block; width: 100%; }
 .btn-input-resi { padding: 6px 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 4px; display: block; width: 100%; }
 .btn-tandai-sampai { padding: 6px 12px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; display: block; width: 100%; }
+.btn-delete-order { padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; display: block; width: 100%; margin-top: 4px; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
 .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 5px solid #2ecc71; }
 .stat-card .stat-label { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 8px; }
@@ -338,6 +339,7 @@ const loadOrders = async () => {
                 ${order.status !== 'paid' ? `<button class="btn-confirm-bayar" onclick="konfirmasiBayar('${order.order_id}')">💰 Konfirmasi Bayar</button>` : ''}
                 <button class="btn-input-resi" onclick="inputResi('${order.order_id}')">📦 Input Resi</button>
                 <button class="btn-tandai-sampai" onclick="tandaiSampai('${order.order_id}')">✅ Tandai Sampai</button>
+                <button class="btn-delete-order" onclick="hapusPesanan('${order.order_id}')">🗑️ Hapus</button>
             </td>`;
         tbody.appendChild(tr);
     });
@@ -381,6 +383,17 @@ const tandaiSampai = async (orderId) => {
     });
     const data = await res.json();
     if (data.success) { alert('✅ Status diupdate!'); loadOrders(); }
+    else { alert('❌ Gagal: ' + data.error); }
+};
+
+const hapusPesanan = async (orderId) => {
+    if (!confirm(`Yakin ingin menghapus pesanan ${orderId}? Aksi ini tidak bisa dibatalkan.`)) return;
+    const res = await fetch(`/api/delete-order?order_id=${orderId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': adminPassword }
+    });
+    const data = await res.json();
+    if (data.success) { alert('🗑️ Pesanan berhasil dihapus!'); loadOrders(); }
     else { alert('❌ Gagal: ' + data.error); }
 };
 </script>
