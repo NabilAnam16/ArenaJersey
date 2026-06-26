@@ -110,6 +110,7 @@ const translations = {
         conditionLabel: "Kondisi",
         addToCartModal: "Tambah ke Keranjang",
         paypalText: "Bayar dengan",
+        soldOut: "Stok Habis",
     },
     en: {
         // Navbar
@@ -191,6 +192,7 @@ const translations = {
         conditionLabel: "Condition",
         addToCartModal: "Add to cart",
         paypalText: "Pay with",
+        soldOut: "Sold Out",
     }
 };
 
@@ -393,6 +395,11 @@ const toggleLanguage = () => {
     applyTranslations();
 };
 
+// ---- Cek Status Stok ----
+const isProductSoldOut = (product) => {
+    return Number(product.stok) <= 0;
+};
+
 // ---- Render Products ----
 const renderProducts = () => {
     const productList = document.getElementById('product-list');
@@ -401,17 +408,27 @@ const renderProducts = () => {
 
     products.forEach(product => {
         const productEl = document.createElement('div');
+        const isSoldOut = isProductSoldOut(product);
         productEl.classList.add('product-card');
+        if (isSoldOut) productEl.classList.add('sold-out');
 
         productEl.innerHTML = `
-            <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail('${product.id}')" style="cursor: pointer;">
+            <div class="product-image-container">
+                <img src="${product.image}" alt="${product.title}" class="product-image" onclick="openProductDetail('${product.id}')" style="cursor: pointer;">
+                ${isSoldOut ? `<div class="sold-out-badge">${t().soldOut}</div>` : ''}
+            </div>
             <div class="product-info">
                 <div class="product-title" onclick="openProductDetail('${product.id}')" style="cursor: pointer;">${product.title}</div>
                 <div class="product-price-row">
                     <div class="product-price">${formatRupiah(product.price)}</div>
-                    <button class="btn-yellow-cart" onclick="addToCart('${product.id}')" title="${t().addToCartTitle}">
-                        <i class="fa-solid fa-cart-plus"></i>
-                    </button>
+                    ${isSoldOut
+                        ? `<button class="btn-yellow-cart sold-out-btn" disabled title="${t().soldOut}">
+                                <i class="fa-solid fa-ban"></i>
+                           </button>`
+                        : `<button class="btn-yellow-cart" onclick="addToCart('${product.id}')" title="${t().addToCartTitle}">
+                                <i class="fa-solid fa-cart-plus"></i>
+                           </button>`
+                    }
                 </div>
             </div>
         `;
@@ -423,6 +440,7 @@ const renderProducts = () => {
 // ---- Add to Cart ----
 const addToCart = (productId) => {
     const product = products.find(p => String(p.id) === String(productId));
+    if (!product || isProductSoldOut(product)) return;
     cart.push(product);
     updateCartBadge();
     alert(t().addedToCart(product.title));
@@ -431,7 +449,7 @@ const addToCart = (productId) => {
 // ---- Add to Cart Multiple (dari detail modal) ----
 const addToCartMultiple = (productId, qty) => {
     const product = products.find(p => String(p.id) === String(productId));
-    if (!product) return;
+    if (!product || isProductSoldOut(product)) return;
     for (let i = 0; i < qty; i++) {
         cart.push(product);
     }
@@ -451,7 +469,6 @@ const checkoutDirect = (product, qty) => {
     
     // Tampilkan checkout modal
     renderCheckoutItems();
-    showShippingStep();
     checkoutModal.style.display = 'block';
 };
 
@@ -519,16 +536,25 @@ const openProductDetail = (productId) => {
         thumbnailsContainer.appendChild(thumbItem);
     });
 
+    // Cek status sold out
+    const soldOutNow = isProductSoldOut(product);
+    const detailQtyInput = document.getElementById('detail-qty');
+    if (detailQtyInput) detailQtyInput.disabled = soldOutNow;
+
     // Event listener Add to Cart (di-clone agar listener lama terhapus)
     const detailAddToCartBtn = document.getElementById('detail-add-to-cart');
     if (detailAddToCartBtn) {
         const newAddToCartBtn = detailAddToCartBtn.cloneNode(true);
         detailAddToCartBtn.parentNode.replaceChild(newAddToCartBtn, detailAddToCartBtn);
-        newAddToCartBtn.addEventListener('click', () => {
-            const qty = parseInt(document.getElementById('detail-qty').value) || 1;
-            addToCartMultiple(product.id, qty);
-            document.getElementById('product-detail-modal').style.display = 'none';
-        });
+        newAddToCartBtn.disabled = soldOutNow;
+        newAddToCartBtn.innerText = soldOutNow ? t().soldOut : t().addToCartModal;
+        if (!soldOutNow) {
+            newAddToCartBtn.addEventListener('click', () => {
+                const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+                addToCartMultiple(product.id, qty);
+                document.getElementById('product-detail-modal').style.display = 'none';
+            });
+        }
     }
 
     // Event listener PayPal / Beli Instan (di-clone agar listener lama terhapus)
@@ -536,10 +562,13 @@ const openProductDetail = (productId) => {
     if (paypalBtn) {
         const newPaypalBtn = paypalBtn.cloneNode(true);
         paypalBtn.parentNode.replaceChild(newPaypalBtn, paypalBtn);
-        newPaypalBtn.addEventListener('click', () => {
-            const qty = parseInt(document.getElementById('detail-qty').value) || 1;
-            checkoutDirect(product, qty);
-        });
+        newPaypalBtn.disabled = soldOutNow;
+        if (!soldOutNow) {
+            newPaypalBtn.addEventListener('click', () => {
+                const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+                checkoutDirect(product, qty);
+            });
+        }
     }
 
     // Tampilkan modal
@@ -567,11 +596,6 @@ const checkoutBtn = document.querySelector('.checkout-btn');
 
 const checkoutModal = document.getElementById('checkout-page-modal');
 const closeCheckoutBtn = document.querySelector('.close-checkout-btn');
-const checkoutStepShipping = document.getElementById('checkout-step-shipping');
-const checkoutStepPayment = document.getElementById('checkout-step-payment');
-const checkoutGridEl = document.querySelector('.checkout-grid');
-const lanjutPaymentBtn = document.getElementById('lanjut-payment-btn');
-const kembaliShippingBtn = document.getElementById('kembali-shipping-btn');
 const placeOrderBtn = document.getElementById('place-order-btn');
 
 // ---- Render Cart Items ----
@@ -684,44 +708,11 @@ window.addEventListener('click', (event) => {
     }
 });
 
-// ---- Checkout 2-Step Flow ----
-const showShippingStep = () => {
-    if (checkoutStepPayment) checkoutStepPayment.classList.add('step-hidden');
-    if (checkoutStepShipping) checkoutStepShipping.classList.remove('step-hidden');
-    if (checkoutGridEl) checkoutGridEl.classList.add('single-step');
-};
-
-const showPaymentStep = () => {
-    const firstName = document.getElementById('checkout-firstname').value.trim();
-    const address = document.getElementById('checkout-address1').value.trim();
-    const city = document.getElementById('checkout-city').value.trim();
-    const phone = document.getElementById('checkout-phone').value.trim();
-
-    if (!firstName || !address || !city || !phone) {
-        alert(t().fillRequired);
-        return;
-    }
-
-    if (checkoutStepShipping) checkoutStepShipping.classList.add('step-hidden');
-    if (checkoutStepPayment) checkoutStepPayment.classList.remove('step-hidden');
-    if (checkoutGridEl) checkoutGridEl.classList.add('single-step');
-    if (checkoutModal) checkoutModal.scrollTop = 0;
-};
-
-if (lanjutPaymentBtn) {
-    lanjutPaymentBtn.addEventListener('click', showPaymentStep);
-}
-
-if (kembaliShippingBtn) {
-    kembaliShippingBtn.addEventListener('click', showShippingStep);
-}
-
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
         if (cart.length > 0) {
             modal.style.display = 'none';
             renderCheckoutItems();
-            showShippingStep();
             checkoutModal.style.display = 'block';
         } else {
             alert(t().cartEmptyAlert);
