@@ -469,6 +469,7 @@ const checkoutDirect = (product, qty) => {
     
     // Tampilkan checkout modal
     renderCheckoutItems();
+    showShippingStep();
     checkoutModal.style.display = 'block';
 };
 
@@ -597,6 +598,11 @@ const checkoutBtn = document.querySelector('.checkout-btn');
 const checkoutModal = document.getElementById('checkout-page-modal');
 const closeCheckoutBtn = document.querySelector('.close-checkout-btn');
 const placeOrderBtn = document.getElementById('place-order-btn');
+const checkoutStepShipping = document.getElementById('checkout-step-shipping');
+const checkoutStepPayment = document.getElementById('checkout-step-payment');
+const checkoutGridEl = document.querySelector('.checkout-grid');
+const lanjutPaymentBtn = document.getElementById('lanjut-payment-btn');
+const kembaliShippingBtn = document.getElementById('kembali-shipping-btn');
 
 // ---- Render Cart Items ----
 const renderCartItems = () => {
@@ -708,11 +714,44 @@ window.addEventListener('click', (event) => {
     }
 });
 
+// ---- Checkout 2-Step Flow ----
+const showShippingStep = () => {
+    if (checkoutStepPayment) checkoutStepPayment.classList.add('step-hidden');
+    if (checkoutStepShipping) checkoutStepShipping.classList.remove('step-hidden');
+    if (checkoutGridEl) checkoutGridEl.classList.add('single-step');
+};
+
+const showPaymentStep = () => {
+    const firstName = document.getElementById('checkout-firstname').value.trim();
+    const address = document.getElementById('checkout-address1').value.trim();
+    const city = document.getElementById('checkout-city').value.trim();
+    const phone = document.getElementById('checkout-phone').value.trim();
+
+    if (!firstName || !address || !city || !phone) {
+        alert(t().fillRequired);
+        return;
+    }
+
+    if (checkoutStepShipping) checkoutStepShipping.classList.add('step-hidden');
+    if (checkoutStepPayment) checkoutStepPayment.classList.remove('step-hidden');
+    if (checkoutGridEl) checkoutGridEl.classList.add('single-step');
+    if (checkoutModal) checkoutModal.scrollTop = 0;
+};
+
+if (lanjutPaymentBtn) {
+    lanjutPaymentBtn.addEventListener('click', showPaymentStep);
+}
+
+if (kembaliShippingBtn) {
+    kembaliShippingBtn.addEventListener('click', showShippingStep);
+}
+
 if (checkoutBtn) {
     checkoutBtn.addEventListener('click', () => {
         if (cart.length > 0) {
             modal.style.display = 'none';
             renderCheckoutItems();
+            showShippingStep();
             checkoutModal.style.display = 'block';
         } else {
             alert(t().cartEmptyAlert);

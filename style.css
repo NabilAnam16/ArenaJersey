@@ -1129,6 +1129,52 @@ body {
     gap: 40px;
 }
 
+.checkout-grid.single-step {
+    grid-template-columns: 1fr;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.step-hidden {
+    display: none;
+}
+
+.btn-lanjutkan-pembayaran {
+    width: 100%;
+    margin-top: 30px;
+    padding: 16px;
+    background: var(--green-accent, #3c8751);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-lanjutkan-pembayaran:hover {
+    background: var(--green-hover, #2d6b3e);
+}
+
+.btn-kembali-shipping {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-kembali-shipping:hover {
+    color: var(--green-accent, #3c8751);
+}
+
 @media (max-width: 992px) {
     .checkout-grid {
         grid-template-columns: 1fr;
