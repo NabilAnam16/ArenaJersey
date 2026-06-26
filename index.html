@@ -99,7 +99,7 @@
         <div class="checkout-container">
             <span class="close-checkout-btn">&times;</span>
             <div class="checkout-grid">
-                <div class="billing-details">
+                <div class="billing-details" id="checkout-step-shipping">
                     <h3>Billing Details</h3>
                     <div class="form-row">
                         <div class="form-group">
@@ -190,10 +190,12 @@
                                 placeholder="Notes about your order, e.g. special notes for delivery."
                                 rows="5"></textarea>
                         </div>
+                        <button type="button" class="btn-lanjutkan-pembayaran" id="lanjut-payment-btn">Lanjutkan ke Pembayaran &rarr;</button>
                     </div>
 
                     <!-- Your Order -->
-                    <div class="order-summary-section">
+                    <div class="order-summary-section step-hidden" id="checkout-step-payment">
+                        <button type="button" class="btn-kembali-shipping" id="kembali-shipping-btn">&larr; Kembali ke Detail Pengiriman</button>
                         <div class="order-box">
                             <h3>Your Order</h3>
                             <div class="order-table">
