@@ -71,6 +71,18 @@
     .timeline-content small { color: #999; font-size: 12px; }
 
     .error-msg { color: #e74c3c; text-align: center; padding: 20px; }
+
+    .phone-result-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; border: 2px solid #eee; border-radius: 10px;
+      margin-top: 10px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .phone-result-item:hover { border-color: #2ecc71; }
+    .phone-result-item .pri-left p { font-size: 14px; font-weight: 700; }
+    .phone-result-item .pri-left small { color: #999; font-size: 12px; }
+    .phone-result-item .pri-right { text-align: right; }
+    .phone-result-item .pri-right .pri-total { font-size: 13px; font-weight: 700; }
+    .phone-result-item .pri-right small { font-size: 11px; color: #999; }
   </style>
 </head>
 <body>
@@ -88,6 +100,16 @@
     <input type="text" id="order-id-input" placeholder="Masukkan Order ID (contoh: AJ-1234567890)">
     <button onclick="trackOrder()">🔍 Cek Pesanan</button>
     <p id="search-error" style="color:#e74c3c; margin-top:10px; font-size:13px;"></p>
+    <p style="text-align:center; margin-top:14px;">
+      <a href="#" id="toggle-phone-search" style="color:#2ecc71; font-size:13px; text-decoration:none;">Lupa Order ID? Cari pakai nomor HP</a>
+    </p>
+
+    <div id="phone-search-box" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
+      <input type="text" id="phone-input" placeholder="Masukkan nomor HP (contoh: 081234567890)">
+      <button onclick="lookupByPhone()" style="background:#1a1a1a;">📱 Cari Pesanan</button>
+      <p id="phone-search-error" style="color:#e74c3c; margin-top:10px; font-size:13px;"></p>
+      <div id="phone-results"></div>
+    </div>
   </div>
 
   <div class="result-box" id="result-box">
@@ -253,7 +275,86 @@ const trackOrder = async () => {
 document.getElementById('order-id-input').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') trackOrder();
 });
+
+// ---- Toggle form pencarian via nomor HP ----
+const togglePhoneLink = document.getElementById('toggle-phone-search');
+const phoneSearchBox = document.getElementById('phone-search-box');
+togglePhoneLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  const isHidden = phoneSearchBox.style.display === 'none';
+  phoneSearchBox.style.display = isHidden ? 'block' : 'none';
+  togglePhoneLink.innerText = isHidden ? 'Sembunyikan pencarian nomor HP' : 'Lupa Order ID? Cari pakai nomor HP';
+});
+
+const formatTanggalSingkat = (isoDate) => {
+  try {
+    return new Date(isoDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch {
+    return '-';
+  }
+};
+
+const statusLabelSingkat = (order) => {
+  if (order.status_pengiriman === 'delivered') return '✅ Sudah Sampai';
+  if (order.status_pengiriman === 'shipped') return '🚚 Dikirim';
+  if (order.status === 'paid') return '⏳ Diproses';
+  return '⏳ Menunggu Pembayaran';
+};
+
+// ---- Cari Order ID via nomor HP ----
+const lookupByPhone = async () => {
+  const phone = document.getElementById('phone-input').value.trim();
+  const errorEl = document.getElementById('phone-search-error');
+  const resultsEl = document.getElementById('phone-results');
+
+  errorEl.innerText = '';
+  resultsEl.innerHTML = '';
+
+  if (!phone) {
+    errorEl.innerText = 'Masukkan nomor HP terlebih dahulu!';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/lookup-orders-by-phone?phone=${encodeURIComponent(phone)}`);
+    const data = await res.json();
+
+    if (data.error) {
+      errorEl.innerText = '❌ ' + (data.error.includes('Tidak ada pesanan') ?
+        'Tidak ada pesanan ditemukan untuk nomor HP ini.' : data.error);
+      return;
+    }
+
+    data.orders.forEach(order => {
+      const item = document.createElement('div');
+      item.className = 'phone-result-item';
+      item.innerHTML = `
+        <div class="pri-left">
+          <p>${order.order_id}</p>
+          <small>${formatTanggalSingkat(order.created_at)}</small>
+        </div>
+        <div class="pri-right">
+          <div class="pri-total">${formatRupiah(order.total)}</div>
+          <small>${statusLabelSingkat(order)}</small>
+        </div>
+      `;
+      item.addEventListener('click', () => {
+        document.getElementById('order-id-input').value = order.order_id;
+        phoneSearchBox.style.display = 'none';
+        togglePhoneLink.innerText = 'Lupa Order ID? Cari pakai nomor HP';
+        trackOrder();
+      });
+      resultsEl.appendChild(item);
+    });
+  } catch (err) {
+    errorEl.innerText = '❌ Terjadi kesalahan. Coba lagi.';
+  }
+};
+
+document.getElementById('phone-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') lookupByPhone();
+});
 </script>
 
 </body>
-</html>
+</html>ssss
