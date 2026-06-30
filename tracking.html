@@ -124,10 +124,10 @@
     <div class="timeline">
       <h4>Timeline Pengiriman</h4>
       <div class="timeline-item">
-        <div class="timeline-dot active" id="dot-ordered"></div>
+        <div class="timeline-dot" id="dot-ordered"></div>
         <div class="timeline-content">
           <p>Pesanan Diterima</p>
-          <small>Pembayaran dikonfirmasi</small>
+          <small id="label-ordered">Menunggu konfirmasi pembayaran</small>
         </div>
       </div>
       <div class="timeline-item">
@@ -152,6 +152,24 @@
 const formatRupiah = (n) => new Intl.NumberFormat('id-ID', {
   style: 'currency', currency: 'IDR', minimumFractionDigits: 0
 }).format(n);
+
+// Link cek resi otomatis per kurir (nomor resi ditempel di akhir URL)
+const KURIR_TRACKING_URL = {
+  'JNE': (resi) => `https://www.jne.co.id/id/tracking/trace/${resi}`,
+  'J&T': (resi) => `https://jet.co.id/track?awb=${resi}`,
+  'J&T EXPRESS': (resi) => `https://jet.co.id/track?awb=${resi}`,
+  'SICEPAT': (resi) => `https://www.sicepat.com/checkAwb/${resi}`,
+  'ANTERAJA': (resi) => `https://anteraja.id/tracking?awb=${resi}`,
+  'POS INDONESIA': (resi) => `https://www.posindonesia.co.id/id/tracking/${resi}`,
+  'NINJA EXPRESS': (resi) => `https://www.ninjaxpress.co/id-id/tracking?id=${resi}`,
+};
+
+const getResiTrackingUrl = (kurir, resi) => {
+  if (!kurir || !resi) return null;
+  const key = kurir.trim().toUpperCase();
+  const builder = KURIR_TRACKING_URL[key];
+  return builder ? builder(resi) : null;
+};
 
 const trackOrder = async () => {
   const orderId = document.getElementById('order-id-input').value.trim();
@@ -183,7 +201,33 @@ const trackOrder = async () => {
     document.getElementById('res-total').innerText = formatRupiah(order.total);
     document.getElementById('res-status').innerText = order.status === 'paid' ? '✅ Lunas' : '⏳ Pending';
     document.getElementById('res-kurir').innerText = order.kurir || '-';
-    document.getElementById('res-resi').innerText = order.resi || 'Belum ada resi';
+
+    // Nomor resi: jadi link otomatis ke website kurir kalau kurirnya dikenali
+    const resiEl = document.getElementById('res-resi');
+    if (order.resi) {
+      const trackingUrl = getResiTrackingUrl(order.kurir, order.resi);
+      if (trackingUrl) {
+        resiEl.innerHTML = `<a href="${trackingUrl}" target="_blank" rel="noopener" style="color:#2ecc71;">${order.resi} ↗</a>`;
+      } else {
+        resiEl.innerText = order.resi;
+      }
+    } else {
+      resiEl.innerText = 'Belum ada resi';
+    }
+
+    // Reset semua dot timeline (untuk pencarian Order ID berulang)
+    document.getElementById('dot-ordered').classList.remove('active');
+    document.getElementById('dot-shipped').classList.remove('active');
+    document.getElementById('dot-delivered').classList.remove('active');
+
+    // Dot "Pesanan Diterima" hanya aktif kalau pembayaran sudah dikonfirmasi
+    const isPaid = order.status === 'paid';
+    if (isPaid) {
+      document.getElementById('dot-ordered').classList.add('active');
+      document.getElementById('label-ordered').innerText = 'Pembayaran dikonfirmasi';
+    } else {
+      document.getElementById('label-ordered').innerText = 'Menunggu konfirmasi pembayaran';
+    }
 
     const statusEl = document.getElementById('res-pengiriman');
     const status = order.status_pengiriman;
