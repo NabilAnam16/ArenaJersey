@@ -57,6 +57,14 @@ body { font-family: 'Arial', sans-serif; background: #f5f5f5; }
 .stat-card.revenue { border-left-color: #2ecc71; }
 .stat-card.shipped { border-left-color: #3498db; }
 .stat-card.delivered { border-left-color: #9b59b6; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+.modal-box { background: white; border-radius: 12px; padding: 25px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+.edit-image-gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.edit-image-item { position: relative; width: 80px; height: 80px; }
+.edit-image-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 2px solid #eee; }
+.edit-image-item .remove-img-btn { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 12px; line-height: 1; }
+.modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+.btn-cancel { flex: 1; background: #999; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -146,6 +154,30 @@ body { font-family: 'Arial', sans-serif; background: #f5f5f5; }
 </div>
 </div>
 
+<!-- Modal Edit Produk -->
+<div class="modal-overlay" id="edit-modal" style="display:none;">
+<div class="modal-box">
+<h3>✏️ Edit Produk</h3>
+<input type="hidden" id="edit-id">
+<div class="form-group"><label>Nama Produk *</label><input type="text" id="edit-title"></div>
+<div class="form-group"><label>Harga (Rp) *</label><input type="number" id="edit-price"></div>
+<div class="form-group"><label>Deskripsi</label><textarea id="edit-description"></textarea></div>
+<div class="form-group"><label>Kondisi</label><input type="text" id="edit-kondisi"></div>
+<div class="form-group"><label>Ukuran (pisahkan dengan koma)</label><input type="text" id="edit-sizes"></div>
+<div class="form-group"><label>Stok</label><input type="number" id="edit-stok"></div>
+<div class="form-group">
+<label>Foto Saat Ini (klik ✕ untuk hapus)</label>
+<div class="edit-image-gallery" id="edit-image-gallery"></div>
+</div>
+<div class="form-group"><label>Tambah Foto Baru</label><input type="file" id="edit-new-images" multiple accept="image/*"></div>
+<div class="modal-actions">
+<button class="btn-submit" onclick="saveProductEdit()">💾 Simpan</button>
+<button class="btn-cancel" onclick="closeEditModal()">Batal</button>
+</div>
+<p id="edit-status" style="margin-top:10px; text-align:center;"></p>
+</div>
+</div>
+
 <script>
 let adminPassword = '';
 const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
@@ -224,12 +256,15 @@ const uploadProduct = async () => {
     }
 };
 
+let allProducts = [];
+
 const loadProducts = async () => {
     const grid = document.getElementById('admin-product-grid');
     grid.innerHTML = '<p class="loading">Memuat produk...</p>';
     const res = await fetch('/api/get-products');
     const data = await res.json();
-    if (!data.products || data.products.length === 0) { grid.innerHTML = '<p class="loading">Belum ada produk.</p>'; return; }
+    if (!data.products || data.products.length === 0) { grid.innerHTML = '<p class="loading">Belum ada produk.</p>'; allProducts = []; return; }
+    allProducts = data.products;
     grid.innerHTML = '';
     data.products.forEach(product => {
         const card = document.createElement('div');
@@ -241,7 +276,7 @@ const loadProducts = async () => {
                 <div class="price">${formatRupiah(product.price)}</div>
                 <div class="stok">Stok: ${product.stok} | Kondisi: ${product.kondisi || '-'}</div>
                 <div class="actions">
-                    <button class="btn-edit" onclick="editProduct(${product.id})">✏️ Edit</button>
+                    <button class="btn-edit" onclick="openEditModal(${product.id})">✏️ Edit</button>
                     <button class="btn-delete" onclick="deleteProduct(${product.id})">🗑️ Hapus</button>
                 </div>
             </div>`;
@@ -257,20 +292,93 @@ const deleteProduct = async (id) => {
     else { alert('Gagal menghapus: ' + data.error); }
 };
 
-const editProduct = async (id) => {
-    const title = prompt('Nama produk baru:');
-    if (!title) return;
-    const price = prompt('Harga baru:');
-    const stok = prompt('Stok baru:');
-    const kondisi = prompt('Kondisi baru:');
-    const res = await fetch('/api/admin-edit', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPassword },
-        body: JSON.stringify({ id, title, price: parseInt(price), stok: parseInt(stok), kondisi })
+let editKeptImages = [];
+
+const openEditModal = (id) => {
+    const product = allProducts.find(p => p.id === id);
+    if (!product) return;
+    document.getElementById('edit-id').value = product.id;
+    document.getElementById('edit-title').value = product.title || '';
+    document.getElementById('edit-price').value = product.price || '';
+    document.getElementById('edit-description').value = product.description || '';
+    document.getElementById('edit-kondisi').value = product.kondisi || '';
+    document.getElementById('edit-sizes').value = (product.sizes || []).join(', ');
+    document.getElementById('edit-stok').value = product.stok || '';
+    document.getElementById('edit-new-images').value = '';
+    document.getElementById('edit-status').innerText = '';
+    editKeptImages = [...(product.images || [])];
+    renderEditGallery();
+    document.getElementById('edit-modal').style.display = 'flex';
+};
+
+const closeEditModal = () => {
+    document.getElementById('edit-modal').style.display = 'none';
+};
+
+const renderEditGallery = () => {
+    const gallery = document.getElementById('edit-image-gallery');
+    if (editKeptImages.length === 0) {
+        gallery.innerHTML = '<p style="font-size:12px; color:#999;">Tidak ada foto tersisa — tambahkan minimal 1 foto baru di bawah.</p>';
+        return;
+    }
+    gallery.innerHTML = '';
+    editKeptImages.forEach((url, index) => {
+        const div = document.createElement('div');
+        div.classList.add('edit-image-item');
+        div.innerHTML = `<img src="${url}" alt="foto produk"><button class="remove-img-btn" onclick="removeEditImage(${index})">✕</button>`;
+        gallery.appendChild(div);
     });
-    const data = await res.json();
-    if (data.success) { alert('Produk berhasil diupdate!'); loadProducts(); }
-    else { alert('Gagal update: ' + data.error); }
+};
+
+const removeEditImage = (index) => {
+    editKeptImages.splice(index, 1);
+    renderEditGallery();
+};
+
+const saveProductEdit = async () => {
+    const id = document.getElementById('edit-id').value;
+    const title = document.getElementById('edit-title').value.trim();
+    const price = document.getElementById('edit-price').value;
+    const description = document.getElementById('edit-description').value.trim();
+    const kondisi = document.getElementById('edit-kondisi').value.trim();
+    const sizes = document.getElementById('edit-sizes').value.trim().split(',').map(s => s.trim()).filter(Boolean);
+    const stok = document.getElementById('edit-stok').value;
+    const newImageFiles = document.getElementById('edit-new-images').files;
+    const statusEl = document.getElementById('edit-status');
+
+    if (!title || !price) { alert('Nama produk dan harga wajib diisi!'); return; }
+    if (editKeptImages.length === 0 && newImageFiles.length === 0) { alert('Produk harus punya minimal 1 foto!'); return; }
+
+    statusEl.innerText = '⏳ Menyimpan...';
+    statusEl.style.color = '#333';
+
+    try {
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('title', title);
+        formData.append('price', price);
+        formData.append('description', description);
+        formData.append('kondisi', kondisi);
+        formData.append('sizes', sizes.join(', '));
+        formData.append('stok', stok);
+        formData.append('keepImages', JSON.stringify(editKeptImages));
+        for (const file of newImageFiles) { formData.append('images', file); }
+
+        const res = await fetch('/api/admin-edit', {
+            method: 'PUT',
+            headers: { 'x-admin-password': adminPassword },
+            body: formData
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        statusEl.innerText = '✅ Produk berhasil diupdate!';
+        statusEl.style.color = '#2ecc71';
+        setTimeout(() => { closeEditModal(); loadProducts(); }, 600);
+    } catch (err) {
+        statusEl.innerText = '❌ Gagal: ' + err.message;
+        statusEl.style.color = '#e74c3c';
+    }
 };
 
 // ====== DASHBOARD RINGKASAN ======
