@@ -1461,12 +1461,14 @@ body {
 .product-detail-content {
     max-width: 1000px !important;
     width: 90% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
     padding: 30px !important;
     border-radius: 12px !important;
     border: none !important;
     position: relative;
     background: #fff;
-    margin: 5% auto;
+    margin: 5vh auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 .close-detail-btn {
@@ -1511,13 +1513,31 @@ body {
 .thumbnail-list {
     display: flex;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
     width: 100%;
     max-width: 100%;
     justify-content: center;
     flex-wrap: wrap;
-    padding-bottom: 5px;
+    max-height: 145px; /* membatasi tinggi maksimum thumbnail */
+    overflow-y: auto;  /* mengaktifkan scroll ke bawah */
+    padding: 4px;
 }
+/* Scrollbar halus untuk thumbnail */
+.thumbnail-list::-webkit-scrollbar {
+    width: 5px;
+}
+.thumbnail-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.thumbnail-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.thumbnail-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
 .thumbnail-item {
     width: 65px;
     height: 65px;
